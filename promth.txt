@@ -1,0 +1,11 @@
+he realizado la importacion pero no tengo forma de verificar el detalle
+de la importacion por que no hay un mantenimiento de no_desc_cred_nomina solo tenemos         
+   la parte manual asi que tenemos que hacer uno que nos mueste por id_nomina todos los          
+   no_desc_cred_nomina que tiene esa nomina, mi idea es hacer una pantalla en el frontend        
+   que muestre un selector con las nominas (todas no solo las activas) pues esto nos va a        
+   servir de reporte para auditoria de nomina pasadas, luego en una tabla mostras los            
+   no_desc_cred_nominas con opciones de consultar/editar,eliminar (las editar y eliminar         
+   solo para nominas activas) al selecionarlas mostrara un formulario con los datos de           
+   dicho no_desc_cred_nomina incluyendo la descripcion de la nomina, el nombre del               
+   empleado, la descripcion del desc_cred y si la nomina esta activo la posibilidad de           
+   realizar cambios, dame un plara 

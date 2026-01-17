@@ -1,0 +1,29 @@
+# Project folders
+#backend-ranger-nomina/
+nominaranger/
+ranger/
+opracionesranger/
+#rangernomina-frontend
+# IDE & OS files
+.vscode/
+.vs/
+*.suo
+._*
+.DS_Store
+
+# Claude Code local settings
+.claude/settings.local.json
+
+# Log files
+*.log
+
+# Error documentation files (local debugging)
+error_brower.md
+error_*.md
+
+# Temporary files
+nul
+
+# Temporary Excel files
+~$*.xlsx
+.gemini/

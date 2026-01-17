@@ -1,0 +1,148 @@
+root_effect_scheduler.mjs:3583 ERROR Error: Provided data source did not match an array, Observable, or DataSource
+    at getTableUnknownDataSourceError (table.mjs:1350:10)
+    at _MatTable._observeRenderChanges (table.mjs:2198:13)
+    at _MatTable._render (table.mjs:2042:12)
+    at _MatTable.ngAfterContentChecked (table.mjs:1809:12)
+    at callHookInternal (debug_node.mjs:860:14)
+    at callHook (debug_node.mjs:891:9)
+    at callHooks (debug_node.mjs:841:17)
+    at executeCheckHooks (debug_node.mjs:772:5)
+    at refreshView (debug_node.mjs:9005:21)
+    at detectChangesInView (debug_node.mjs:9185:9)
+handleError @ root_effect_scheduler.mjs:3583
+(anonymous) @ debug_node.mjs:29839
+invoke @ zone.js:398
+run @ zone.js:113
+runOutsideAngular @ debug_node.mjs:16557
+(anonymous) @ debug_node.mjs:29831
+(anonymous) @ debug_node.mjs:29767
+invoke @ zone.js:398
+onInvoke @ debug_node.mjs:16666
+invoke @ zone.js:397
+run @ zone.js:113
+run @ debug_node.mjs:16512
+next @ debug_node.mjs:29761
+ConsumerObserver2.next @ Subscriber.js:96
+Subscriber2._next @ Subscriber.js:63
+Subscriber2.next @ Subscriber.js:34
+(anonymous) @ Subject.js:41
+errorContext @ errorContext.js:19
+Subject2.next @ Subject.js:31
+emit @ debug_node.mjs:16200
+checkStable @ debug_node.mjs:16580
+(anonymous) @ debug_node.mjs:16618
+(anonymous) @ debug_node.mjs:16302
+timer @ zone.js:1809
+invokeTask @ zone.js:431
+runTask @ zone.js:161
+invokeTask @ zone.js:515
+ZoneTask.invoke @ zone.js:504
+data.args.<computed> @ zone.js:1778
+requestAnimationFrame
+scheduleTask @ zone.js:1780
+scheduleTask @ zone.js:417
+scheduleTask @ zone.js:207
+scheduleMacroTask @ zone.js:230
+scheduleMacroTaskWithCurrentZone @ zone.js:723
+(anonymous) @ zone.js:1834
+proto.<computed> @ zone.js:1038
+scheduleCallbackWithRafRace @ debug_node.mjs:16301
+scheduleCheckStable @ debug_node.mjs:16614
+(anonymous) @ debug_node.mjs:16629
+invoke @ zone.js:398
+run @ zone.js:113
+delayChangeDetectionForEvents @ debug_node.mjs:16628
+delayChangeDetectionForEventsDelegate @ debug_node.mjs:16636
+onInvokeTask @ debug_node.mjs:16658
+invokeTask @ zone.js:430
+runTask @ zone.js:161
+invokeTask @ zone.js:515
+invokeTask @ zone.js:1141
+globalCallback @ zone.js:1172
+globalZoneAwareCallback @ zone.js:1205
+gestion-vacaciones.component.ts:59 ERROR Error: Provided data source did not match an array, Observable, or DataSource
+    at getTableUnknownDataSourceError (table.mjs:1350:10)
+    at _MatTable._observeRenderChanges (table.mjs:2198:13)
+    at _MatTable._render (table.mjs:2042:12)
+    at _MatTable.ngAfterContentChecked (table.mjs:1809:12)
+    at callHookInternal (debug_node.mjs:860:14)
+    at callHook (debug_node.mjs:891:9)
+    at callHooks (debug_node.mjs:841:17)
+    at executeCheckHooks (debug_node.mjs:772:5)
+    at refreshView (debug_node.mjs:9005:21)
+    at detectChangesInView (debug_node.mjs:9185:9)
+handleError @ root_effect_scheduler.mjs:3583
+(anonymous) @ debug_node.mjs:29839
+invoke @ zone.js:398
+run @ zone.js:113
+runOutsideAngular @ debug_node.mjs:16557
+(anonymous) @ debug_node.mjs:29831
+(anonymous) @ debug_node.mjs:29767
+invoke @ zone.js:398
+onInvoke @ debug_node.mjs:16666
+invoke @ zone.js:397
+run @ zone.js:113
+run @ debug_node.mjs:16512
+next @ debug_node.mjs:29761
+ConsumerObserver2.next @ Subscriber.js:96
+Subscriber2._next @ Subscriber.js:63
+Subscriber2.next @ Subscriber.js:34
+(anonymous) @ Subject.js:41
+errorContext @ errorContext.js:19
+Subject2.next @ Subject.js:31
+emit @ debug_node.mjs:16200
+checkStable @ debug_node.mjs:16580
+onLeave @ debug_node.mjs:16727
+onInvokeTask @ debug_node.mjs:16660
+invokeTask @ zone.js:430
+runTask @ zone.js:161
+invokeTask @ zone.js:515
+ZoneTask.invoke @ zone.js:504
+data.args.<computed> @ zone.js:1778
+setTimeout
+scheduleTask @ zone.js:1780
+scheduleTask @ zone.js:417
+onScheduleTask @ debug_node.mjs:16325
+scheduleTask @ zone.js:411
+onScheduleTask @ zone.js:273
+scheduleTask @ zone.js:411
+scheduleTask @ zone.js:207
+scheduleMacroTask @ zone.js:230
+scheduleMacroTaskWithCurrentZone @ zone.js:723
+(anonymous) @ zone.js:1834
+proto.<computed> @ zone.js:1038
+_waitForAnimationToComplete @ module-Cz4ZB2Wr.mjs:244
+_startOpenAnimation @ module-Cz4ZB2Wr.mjs:161
+_contentAttached @ module-Cz4ZB2Wr.mjs:147
+attachComponentPortal @ dialog.mjs:238
+attachComponentPortal @ module-Cz4ZB2Wr.mjs:289
+_attachDialogContent @ dialog.mjs:799
+open @ dialog.mjs:676
+open @ module-Cz4ZB2Wr.mjs:632
+openDialog @ gestion-vacaciones.component.ts:59
+GestionVacacionesComponent_Template_app_titulo_listados_buttonClick_1_listener @ gestion-vacaciones.component.html:5
+executeListenerWithErrorHandling @ debug_node.mjs:12978
+wrapListenerIn_markDirtyAndPreventDefault @ debug_node.mjs:12961
+ConsumerObserver2.next @ Subscriber.js:96
+Subscriber2._next @ Subscriber.js:63
+Subscriber2.next @ Subscriber.js:34
+(anonymous) @ Subject.js:41
+errorContext @ errorContext.js:19
+Subject2.next @ Subject.js:31
+emit @ debug_node.mjs:16200
+onButtonClick @ titulo-listados.component.ts:19
+TituloListadosComponent_ng_container_5_ng_template_2_Template_button_click_0_listener @ titulo-listados.component.html:13
+executeListenerWithErrorHandling @ debug_node.mjs:12978
+wrapListenerIn_markDirtyAndPreventDefault @ debug_node.mjs:12961
+(anonymous) @ dom_renderer.mjs:707
+invokeTask @ zone.js:431
+(anonymous) @ debug_node.mjs:16330
+onInvokeTask @ debug_node.mjs:16330
+invokeTask @ zone.js:430
+onInvokeTask @ debug_node.mjs:16653
+invokeTask @ zone.js:430
+runTask @ zone.js:161
+invokeTask @ zone.js:515
+invokeTask @ zone.js:1141
+globalCallback @ zone.js:1172
+globalZoneAwareCallback @ zone.js:1205
