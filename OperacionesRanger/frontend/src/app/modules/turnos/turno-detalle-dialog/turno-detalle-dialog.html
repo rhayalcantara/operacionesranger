@@ -1,0 +1,147 @@
+<h2 mat-dialog-title>
+  <mat-icon>visibility</mat-icon>
+  Detalle del Turno
+</h2>
+
+<mat-dialog-content>
+  <div class="detalle-container">
+    <!-- Información del Empleado -->
+    <mat-card class="info-section">
+      <mat-card-header>
+        <mat-card-title>Guardián</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-row">
+          <span class="label">Nombre:</span>
+          <span class="value">{{ turno.empleado?.nombre || 'N/A' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Cédula:</span>
+          <span class="value">{{ turno.empleado?.cedula || 'N/A' }}</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Información del Puesto -->
+    <mat-card class="info-section">
+      <mat-card-header>
+        <mat-card-title>Puesto</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-row">
+          <span class="label">Código:</span>
+          <span class="value">{{ turno.puesto?.codigo || 'N/A' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Nombre:</span>
+          <span class="value">{{ turno.puesto?.nombre || 'N/A' }}</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Información del Turno -->
+    <mat-card class="info-section">
+      <mat-card-header>
+        <mat-card-title>Información del Turno</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-row">
+          <span class="label">Fecha:</span>
+          <span class="value">{{ turno.fecha | date:'dd/MM/yyyy' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Hora Entrada:</span>
+          <span class="value">{{ turno.hora_entrada }}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Hora Salida:</span>
+          <span class="value">{{ turno.hora_salida }}</span>
+        </div>
+        <mat-divider class="my-2"></mat-divider>
+        <div class="info-row">
+          <span class="label">Horas Normales:</span>
+          <span class="value">{{ turno.horas_normales }} hrs</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Horas Extras:</span>
+          <span class="value">{{ turno.horas_extras }} hrs</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Total Horas:</span>
+          <span class="value"><strong>{{ getTotalHoras() }} hrs</strong></span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Indicadores -->
+    <mat-card class="info-section">
+      <mat-card-header>
+        <mat-card-title>Indicadores</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="badges-container">
+          <mat-chip-set>
+            <mat-chip [class.chip-diurno]="turno.tipo_turno === 'DIURNO'"
+                      [class.chip-nocturno]="turno.tipo_turno === 'NOCTURNO'">
+              <span *ngIf="turno.tipo_turno === 'DIURNO'">🌞</span>
+              <span *ngIf="turno.tipo_turno === 'NOCTURNO'">🌙</span>
+              {{ turno.tipo_turno }}
+            </mat-chip>
+
+            <mat-chip *ngIf="turno.es_feriado" class="chip-feriado">
+              🎉 FERIADO
+              <span *ngIf="turno.tipo_feriado">({{ turno.tipo_feriado }})</span>
+            </mat-chip>
+
+            <mat-chip *ngIf="turno.procesado_nomina" class="chip-procesado">
+              ✅ PROCESADO
+              <span *ngIf="turno.nomina_id">(Nómina #{{ turno.nomina_id }})</span>
+            </mat-chip>
+
+            <mat-chip *ngIf="!turno.procesado_nomina" class="chip-pendiente">
+              ⏳ PENDIENTE
+            </mat-chip>
+          </mat-chip-set>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Observaciones -->
+    <mat-card class="info-section" *ngIf="turno.observaciones">
+      <mat-card-header>
+        <mat-card-title>Observaciones</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p class="observaciones-text">{{ turno.observaciones }}</p>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Auditoría -->
+    <mat-card class="info-section">
+      <mat-card-header>
+        <mat-card-title>Auditoría</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-row">
+          <span class="label">ID:</span>
+          <span class="value">{{ turno.id }}</span>
+        </div>
+        <div class="info-row" *ngIf="turno.created_at">
+          <span class="label">Creado:</span>
+          <span class="value">{{ turno.created_at | date:'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+        <div class="info-row" *ngIf="turno.updated_at">
+          <span class="label">Actualizado:</span>
+          <span class="value">{{ turno.updated_at | date:'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-flat-button color="primary" (click)="onClose()">
+    <mat-icon>close</mat-icon>
+    Cerrar
+  </button>
+</mat-dialog-actions>

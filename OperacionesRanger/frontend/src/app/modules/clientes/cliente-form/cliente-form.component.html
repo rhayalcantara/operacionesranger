@@ -1,0 +1,76 @@
+<h2 mat-dialog-title>{{ isEditMode ? 'Editar Cliente' : 'Nuevo Cliente' }}</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="clienteForm" (ngSubmit)="onSubmit()">
+    <div class="form-grid">
+      <!-- Código -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Código</mat-label>
+        <input matInput formControlName="codigo" placeholder="Ej: CLI-001">
+        <mat-hint *ngIf="!isEditMode">Opcional - Se puede generar automáticamente</mat-hint>
+      </mat-form-field>
+
+      <!-- Nombre -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Nombre *</mat-label>
+        <input matInput formControlName="nombre" placeholder="Nombre del cliente">
+        <mat-error>{{ getErrorMessage('nombre') }}</mat-error>
+      </mat-form-field>
+
+      <!-- RUC -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>RUC *</mat-label>
+        <input matInput formControlName="ruc" placeholder="123456789" maxlength="9">
+        <mat-error>{{ getErrorMessage('ruc') }}</mat-error>
+        <mat-hint>9 dígitos</mat-hint>
+      </mat-form-field>
+
+      <!-- Dirección -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Dirección</mat-label>
+        <textarea matInput formControlName="direccion" rows="2" placeholder="Dirección completa"></textarea>
+        <mat-error>{{ getErrorMessage('direccion') }}</mat-error>
+      </mat-form-field>
+
+      <!-- Teléfono -->
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Teléfono</mat-label>
+        <input matInput formControlName="telefono" placeholder="(809) 123-4567">
+        <mat-error>{{ getErrorMessage('telefono') }}</mat-error>
+      </mat-form-field>
+
+      <!-- Email -->
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="email" type="email" placeholder="correo@ejemplo.com">
+        <mat-error>{{ getErrorMessage('email') }}</mat-error>
+      </mat-form-field>
+
+      <!-- Contacto Nombre -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Nombre del Contacto</mat-label>
+        <input matInput formControlName="contacto_nombre" placeholder="Nombre de la persona de contacto">
+        <mat-error>{{ getErrorMessage('contacto_nombre') }}</mat-error>
+      </mat-form-field>
+
+      <!-- Activo -->
+      <div class="full-width">
+        <mat-checkbox formControlName="activo">Cliente Activo</mat-checkbox>
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()" [disabled]="isLoading">
+    Cancelar
+  </button>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="onSubmit()"
+    [disabled]="isLoading || clienteForm.invalid">
+    <mat-spinner diameter="20" *ngIf="isLoading"></mat-spinner>
+    <span *ngIf="!isLoading">Guardar</span>
+  </button>
+</mat-dialog-actions>

@@ -1,0 +1,299 @@
+.turnos-list-container {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+// Header
+.header {
+  margin-bottom: 24px;
+
+  h1 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 28px;
+    font-weight: 500;
+    color: #1976d2;
+    margin: 0;
+
+    mat-icon {
+      font-size: 32px;
+      height: 32px;
+      width: 32px;
+    }
+  }
+}
+
+// Search card
+.search-card {
+  margin-bottom: 16px;
+  padding: 16px;
+
+  .search-field {
+    width: 100%;
+  }
+}
+
+// Filters panel
+.filters-panel {
+  margin-bottom: 16px;
+
+  mat-expansion-panel-header {
+    mat-panel-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  }
+}
+
+.filters-form {
+  padding: 16px 0;
+
+  .filters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      justify-content: center;
+    }
+  }
+
+  .filter-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+
+    button {
+      mat-icon {
+        margin-right: 4px;
+      }
+    }
+  }
+}
+
+// Table card
+.table-card {
+  position: relative;
+  padding: 0;
+  overflow: hidden;
+}
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.8);
+  z-index: 10;
+}
+
+.table-container {
+  overflow-x: auto;
+  min-height: 400px;
+}
+
+.turnos-table {
+  width: 100%;
+
+  th {
+    background-color: #f5f5f5;
+    font-weight: 600;
+    color: #424242;
+    padding: 12px 16px;
+  }
+
+  td {
+    padding: 12px 16px;
+  }
+
+  .guardian-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .nombre {
+      font-weight: 500;
+      color: #212121;
+    }
+
+    .cedula {
+      font-size: 12px;
+      color: #757575;
+    }
+  }
+
+  .puesto-info {
+    cursor: help;
+    border-bottom: 1px dotted #757575;
+  }
+
+  .horario-info {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-family: 'Courier New', monospace;
+
+    .horario-arrow {
+      font-size: 16px;
+      height: 16px;
+      width: 16px;
+      color: #757575;
+    }
+  }
+
+  .acciones-buttons {
+    display: flex;
+    gap: 4px;
+  }
+
+  .row-disabled {
+    opacity: 0.6;
+    background-color: #fafafa;
+  }
+}
+
+// Chips
+mat-chip {
+  font-size: 12px;
+  font-weight: 500;
+  min-height: 28px;
+  padding: 4px 12px;
+}
+
+.chip-diurno {
+  background-color: #2196f3 !important;
+  color: white !important;
+}
+
+.chip-nocturno {
+  background-color: #1565c0 !important;
+  color: white !important;
+}
+
+.chip-feriado {
+  background-color: #f44336 !important;
+  color: white !important;
+}
+
+.chip-procesado {
+  background-color: #4caf50 !important;
+  color: white !important;
+}
+
+.chip-pendiente {
+  background-color: #ff9800 !important;
+  color: white !important;
+}
+
+// Empty state
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 24px;
+  color: #757575;
+
+  mat-icon {
+    font-size: 64px;
+    height: 64px;
+    width: 64px;
+    margin-bottom: 16px;
+    color: #bdbdbd;
+  }
+
+  p {
+    font-size: 16px;
+    margin: 0 0 24px 0;
+  }
+
+  button {
+    mat-icon {
+      margin-right: 4px;
+    }
+  }
+}
+
+// Paginator
+mat-paginator {
+  border-top: 1px solid #e0e0e0;
+}
+
+// FAB button
+.fab-button {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 100;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+
+  &:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+  }
+}
+
+// Responsive design
+@media (max-width: 960px) {
+  .turnos-list-container {
+    padding: 16px;
+  }
+
+  .header h1 {
+    font-size: 24px;
+
+    mat-icon {
+      font-size: 28px;
+      height: 28px;
+      width: 28px;
+    }
+  }
+
+  .filters-form .filters-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .fab-button {
+    bottom: 16px;
+    right: 16px;
+  }
+}
+
+@media (max-width: 600px) {
+  .turnos-list-container {
+    padding: 12px;
+  }
+
+  .search-card {
+    padding: 12px;
+  }
+
+  .table-container {
+    min-height: 300px;
+  }
+
+  .turnos-table {
+    th, td {
+      padding: 8px 12px;
+      font-size: 14px;
+    }
+  }
+
+  .filter-actions {
+    flex-direction: column;
+
+    button {
+      width: 100%;
+    }
+  }
+}

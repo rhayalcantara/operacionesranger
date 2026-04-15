@@ -1,0 +1,28 @@
+<mat-sidenav-container class="sidenav-container">
+  <!-- Sidebar de navegación -->
+  <mat-sidenav
+    #drawer
+    class="sidenav"
+    fixedInViewport
+    [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
+    [mode]="(isMobile$ | async) ? 'over' : 'side'"
+    [opened]="(isDesktop$ | async) ? true : false"
+  >
+    <!-- NavMenu Component -->
+    <app-navmenu (itemSelected)="closeSidebarOnMobile()"></app-navmenu>
+  </mat-sidenav>
+
+  <!-- Contenido principal -->
+  <mat-sidenav-content>
+    <!-- Header Component -->
+    <app-header (toggleSidebar)="toggleSidebar()"></app-header>
+
+    <!-- Área de contenido con router-outlet -->
+    <div class="main-content">
+      <router-outlet></router-outlet>
+    </div>
+
+    <!-- Footer opcional (futuro) -->
+    <!-- <app-footer></app-footer> -->
+  </mat-sidenav-content>
+</mat-sidenav-container>

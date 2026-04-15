@@ -1,0 +1,233 @@
+.servicios-puesto-container {
+  padding: 24px;
+  max-width: 1600px;
+  margin: 0 auto;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    button {
+      mat-icon {
+        margin-right: 8px;
+      }
+    }
+  }
+
+  .filters-card {
+    margin-bottom: 24px;
+
+    .filters-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      align-items: start;
+
+      .filter-field {
+        width: 100%;
+      }
+
+      .search-field {
+        min-width: 280px;
+      }
+    }
+  }
+
+  .table-card {
+    .table-container {
+      position: relative;
+      min-height: 400px;
+
+      .loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(255, 255, 255, 0.7);
+        z-index: 10;
+      }
+
+      .table-scroll-wrapper {
+        overflow-x: auto;
+      }
+
+      .servicios-table {
+        width: 100%;
+        min-width: 1200px;
+
+        th {
+          background-color: #f5f5f5;
+          font-weight: 600;
+          color: #333;
+          white-space: nowrap;
+        }
+
+        td {
+          padding: 8px 6px;
+        }
+
+        // Puesto info column
+        .puesto-info {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+          min-width: 160px;
+
+          .puesto-codigo {
+            font-weight: 600;
+            font-size: 13px;
+            color: #1976d2;
+          }
+
+          .puesto-nombre {
+            font-size: 13px;
+            color: #333;
+          }
+
+          .puesto-ubicacion {
+            font-size: 11px;
+            color: #888;
+          }
+        }
+
+        // Day columns
+        .nombre-guardian {
+          display: block;
+          max-width: 100px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          font-size: 12px;
+        }
+
+        .celda-vacia {
+          color: #ccc;
+          text-align: center;
+        }
+
+        .celda-asignada {
+          .nombre-guardian {
+            color: #333;
+          }
+        }
+
+        // Chips
+        mat-chip-set {
+          display: inline-flex;
+          gap: 4px;
+
+          mat-chip {
+            font-size: 12px;
+            min-height: 28px;
+            padding: 0 12px;
+
+            &.chip-diurno {
+              background-color: #fff9c4;
+              color: #f57f17;
+              border: 1px solid #fbc02d;
+            }
+
+            &.chip-nocturno {
+              background-color: #e1f5fe;
+              color: #01579b;
+              border: 1px solid #039be5;
+            }
+
+            &.chip-cobrada {
+              background-color: #e8f5e9;
+              color: #2e7d32;
+              border: 1px solid #66bb6a;
+            }
+
+            &.chip-no-cobrada {
+              background-color: #fbe9e7;
+              color: #bf360c;
+              border: 1px solid #ff8a65;
+            }
+          }
+        }
+
+        .empty-state {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 48px 24px;
+          color: #999;
+
+          mat-icon {
+            font-size: 64px;
+            width: 64px;
+            height: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+          }
+
+          p {
+            margin: 0;
+            font-size: 16px;
+          }
+        }
+      }
+
+      mat-paginator {
+        border-top: 1px solid #e0e0e0;
+      }
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 1024px) {
+  .servicios-puesto-container {
+    .filters-card {
+      .filters-row {
+        grid-template-columns: 1fr 1fr;
+
+        .search-field {
+          min-width: unset;
+          grid-column: span 2;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .servicios-puesto-container {
+    padding: 16px;
+
+    .header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+
+      button {
+        width: 100%;
+      }
+    }
+
+    .filters-card {
+      .filters-row {
+        grid-template-columns: 1fr;
+
+        .search-field {
+          grid-column: span 1;
+        }
+      }
+    }
+  }
+}

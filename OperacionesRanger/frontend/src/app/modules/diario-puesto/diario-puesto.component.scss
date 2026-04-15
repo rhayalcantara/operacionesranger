@@ -1,0 +1,239 @@
+.diario-puesto-container {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+
+      button {
+        mat-icon {
+          margin-right: 8px;
+        }
+      }
+    }
+  }
+
+  .filters-card {
+    margin-bottom: 24px;
+
+    .filters-row {
+      display: flex;
+      align-items: start;
+      gap: 16px;
+
+      .date-field {
+        width: 300px;
+      }
+    }
+  }
+
+  .table-card {
+    .table-container {
+      position: relative;
+      min-height: 300px;
+
+      .loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(255, 255, 255, 0.7);
+        z-index: 10;
+      }
+
+      .table-scroll-wrapper {
+        overflow-x: auto;
+      }
+
+      .diario-table {
+        width: 100%;
+        min-width: 800px;
+
+        th {
+          background-color: #f5f5f5;
+          font-weight: 600;
+          color: #333;
+          white-space: nowrap;
+        }
+
+        td {
+          padding: 8px 6px;
+        }
+
+        // Puesto info column
+        .puesto-info {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+          min-width: 160px;
+
+          .puesto-codigo {
+            font-weight: 600;
+            font-size: 13px;
+            color: #1976d2;
+          }
+
+          .puesto-nombre {
+            font-size: 13px;
+            color: #333;
+          }
+
+          .puesto-ubicacion {
+            font-size: 11px;
+            color: #888;
+          }
+        }
+
+        // Empleado info column
+        .empleado-info {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+
+          .empleado-nombre {
+            font-size: 13px;
+            font-weight: 500;
+            color: #333;
+          }
+
+          .empleado-cedula {
+            font-size: 11px;
+            color: #888;
+          }
+        }
+
+        // Horas column
+        .horas-valor {
+          font-weight: 600;
+          font-size: 14px;
+          color: #333;
+        }
+
+        // Chips
+        mat-chip-set {
+          display: inline-flex;
+          gap: 4px;
+
+          mat-chip {
+            font-size: 12px;
+            min-height: 28px;
+            padding: 0 12px;
+
+            &.chip-diurno {
+              background-color: #fff9c4;
+              color: #f57f17;
+              border: 1px solid #fbc02d;
+            }
+
+            &.chip-nocturno {
+              background-color: #e1f5fe;
+              color: #01579b;
+              border: 1px solid #039be5;
+            }
+
+            &.chip-manual {
+              background-color: #e8f5e9;
+              color: #2e7d32;
+              border: 1px solid #66bb6a;
+            }
+
+            &.chip-plantilla {
+              background-color: #f3e5f5;
+              color: #7b1fa2;
+              border: 1px solid #ba68c8;
+            }
+          }
+        }
+      }
+
+      mat-paginator {
+        border-top: 1px solid #e0e0e0;
+      }
+    }
+  }
+
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 24px;
+    color: #999;
+
+    mat-icon {
+      font-size: 64px;
+      width: 64px;
+      height: 64px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    p {
+      margin: 0;
+      font-size: 16px;
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 1024px) {
+  .diario-puesto-container {
+    .filters-card {
+      .filters-row {
+        .date-field {
+          width: 100%;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .diario-puesto-container {
+    padding: 16px;
+
+    .header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+
+      .header-actions {
+        width: 100%;
+        flex-direction: column;
+
+        button {
+          width: 100%;
+        }
+      }
+    }
+
+    .filters-card {
+      .filters-row {
+        flex-direction: column;
+
+        .date-field {
+          width: 100%;
+        }
+      }
+    }
+  }
+}

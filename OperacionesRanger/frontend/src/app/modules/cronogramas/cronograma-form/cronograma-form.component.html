@@ -1,0 +1,176 @@
+<h2 mat-dialog-title>{{ isEditMode ? 'Editar Cronograma' : 'Nuevo Cronograma' }}</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="cronogramaForm" class="cronograma-form">
+    <!-- Datos del Cronograma -->
+    <div class="section-header">
+      <mat-icon>calendar_month</mat-icon>
+      <h3>Información General</h3>
+    </div>
+
+    <div class="form-row">
+      <!-- Nombre -->
+      <mat-form-field appearance="outline">
+        <mat-label>Nombre *</mat-label>
+        <input matInput formControlName="nombre" placeholder="Ej: Cronograma Zona Norte" maxlength="150">
+        <mat-icon matPrefix>badge</mat-icon>
+        <mat-error *ngIf="cronogramaForm.get('nombre')?.hasError('required')">
+          El nombre es requerido
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Activo -->
+      <div class="checkbox-container">
+        <mat-checkbox formControlName="activo">
+          Activo
+        </mat-checkbox>
+      </div>
+    </div>
+
+    <!-- Descripcion -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Descripción</mat-label>
+      <textarea
+        matInput
+        formControlName="descripcion"
+        rows="2"
+        maxlength="500"
+        placeholder="Descripción del cronograma...">
+      </textarea>
+      <mat-icon matPrefix>description</mat-icon>
+      <mat-hint align="end">{{ cronogramaForm.get('descripcion')?.value?.length || 0 }}/500</mat-hint>
+      <mat-error *ngIf="cronogramaForm.get('descripcion')?.hasError('maxlength')">
+        Máximo 500 caracteres
+      </mat-error>
+    </mat-form-field>
+
+    <mat-divider></mat-divider>
+
+    <!-- Detalles / Asignaciones -->
+    <div class="section-header">
+      <mat-icon>assignment</mat-icon>
+      <h3>Asignaciones Semanales</h3>
+      <button
+        mat-mini-fab
+        color="primary"
+        type="button"
+        (click)="agregarDetalle()"
+        matTooltip="Agregar asignación"
+        class="add-row-btn">
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
+
+    <!-- Error de exceso de dias -->
+    <div *ngIf="empleadoExcesoError" class="exceso-error">
+      <mat-icon>warning</mat-icon>
+      <span>{{ empleadoExcesoError }}</span>
+    </div>
+
+    <!-- Encabezado de la grilla -->
+    <div class="detalles-grid-header" *ngIf="detalles.length > 0">
+      <span class="col-dia">Día</span>
+      <span class="col-puesto">Puesto</span>
+      <span class="col-empleado">Empleado</span>
+      <span class="col-turno">Turno</span>
+      <span class="col-acciones"></span>
+    </div>
+
+    <!-- Filas de detalles -->
+    <div formArrayName="detalles" class="detalles-list">
+      <div
+        *ngFor="let detalle of detalles.controls; let i = index"
+        [formGroupName]="i"
+        class="detalle-row">
+
+        <!-- Dia de la semana -->
+        <mat-form-field appearance="outline" class="col-dia">
+          <mat-label>Día</mat-label>
+          <mat-select formControlName="dia_semana">
+            <mat-option *ngFor="let dia of diasSemana" [value]="dia.value">
+              {{ dia.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Puesto -->
+        <mat-form-field appearance="outline" class="col-puesto">
+          <mat-label>Puesto</mat-label>
+          <mat-select formControlName="puesto_id">
+            <mat-option *ngFor="let puesto of puestosDisponibles" [value]="puesto.id">
+              {{ puesto.nombre }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Empleado (Autocomplete) -->
+        <mat-form-field appearance="outline" class="col-empleado">
+          <mat-label>Empleado</mat-label>
+          <input
+            matInput
+            [value]="guardianSearchInputs.get(i) || ''"
+            (input)="buscarGuardian(i, $event)"
+            [matAutocomplete]="autoGuardian"
+            placeholder="Buscar por nombre o cédula">
+          <mat-autocomplete
+            #autoGuardian="matAutocomplete"
+            (optionSelected)="seleccionarGuardian(i, $event.option.value)">
+            <mat-option *ngFor="let guardian of guardianSuggestions.get(i)" [value]="guardian">
+              {{ guardian.nombre_completo || (guardian.nombres + ' ' + guardian.apellidos) }}
+              <span class="guardian-cedula"> — {{ guardian.cedula_empleado }}</span>
+            </mat-option>
+          </mat-autocomplete>
+          <mat-error *ngIf="detalle.get('empleado_id')?.hasError('required')">
+            Requerido
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Tipo Turno -->
+        <mat-form-field appearance="outline" class="col-turno">
+          <mat-label>Turno</mat-label>
+          <mat-select formControlName="tipo_turno">
+            <mat-option *ngFor="let tipo of tiposTurno" [value]="tipo">
+              {{ tipo }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Boton eliminar fila -->
+        <button
+          mat-icon-button
+          color="warn"
+          type="button"
+          (click)="eliminarDetalle(i)"
+          matTooltip="Eliminar asignación"
+          class="col-acciones">
+          <mat-icon>remove_circle_outline</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Estado vacio -->
+    <div *ngIf="detalles.length === 0" class="empty-detalles">
+      <mat-icon>event_note</mat-icon>
+      <p>No hay asignaciones. Presione <strong>+</strong> para agregar.</p>
+    </div>
+  </form>
+
+  <!-- Loading overlay -->
+  <div *ngIf="isLoading" class="loading-overlay">
+    <mat-spinner></mat-spinner>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()" [disabled]="isLoading">
+    Cancelar
+  </button>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="onSubmit()"
+    [disabled]="cronogramaForm.invalid || isLoading || !!empleadoExcesoError">
+    <mat-icon>save</mat-icon>
+    {{ isEditMode ? 'Actualizar' : 'Crear' }}
+  </button>
+</mat-dialog-actions>

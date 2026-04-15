@@ -1,0 +1,301 @@
+<div class="resumen-guardian-container">
+  <!-- Header -->
+  <div class="header">
+    <h1>
+      <mat-icon>analytics</mat-icon>
+      Resumen por Guardián
+    </h1>
+    <p class="subtitle">Estadísticas detalladas de turnos por guardián en un periodo específico</p>
+  </div>
+
+  <!-- Sección 1: Selectores (siempre visible) -->
+  <mat-card class="filtros-card">
+    <mat-card-header>
+      <mat-card-title>Selección de Parámetros</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="formulario" class="filtros-form">
+        <!-- Selector de Guardián -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Guardián</mat-label>
+          <input
+            type="text"
+            matInput
+            formControlName="guardian"
+            [matAutocomplete]="autoGuardian"
+            placeholder="Buscar por nombre o cédula..."
+          >
+          <mat-icon matPrefix>person_search</mat-icon>
+          <mat-autocomplete
+            #autoGuardian="matAutocomplete"
+            [displayWith]="displayGuardian.bind(this)"
+            (optionSelected)="onGuardianSelected($event.option.value)"
+          >
+            <mat-option
+              *ngFor="let guardian of guardianesFiltered$ | async"
+              [value]="guardian"
+            >
+              <span class="guardian-option">
+                <strong>{{ guardian.nombres }} {{ guardian.apellidos }}</strong>
+                <span class="cedula">({{ guardian.cedula_empleado }})</span>
+              </span>
+            </mat-option>
+          </mat-autocomplete>
+          <mat-error *ngIf="formulario.get('guardian')?.hasError('required')">
+            Debe seleccionar un guardián
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Rango de Fechas -->
+        <div class="fecha-range">
+          <mat-form-field appearance="outline" class="fecha-field">
+            <mat-label>Fecha Inicio</mat-label>
+            <input
+              matInput
+              [matDatepicker]="pickerInicio"
+              formControlName="fechaInicio"
+              placeholder="DD/MM/YYYY"
+            >
+            <mat-datepicker-toggle matSuffix [for]="pickerInicio"></mat-datepicker-toggle>
+            <mat-datepicker #pickerInicio></mat-datepicker>
+            <mat-error *ngIf="formulario.get('fechaInicio')?.hasError('required')">
+              Fecha inicio requerida
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="fecha-field">
+            <mat-label>Fecha Fin</mat-label>
+            <input
+              matInput
+              [matDatepicker]="pickerFin"
+              formControlName="fechaFin"
+              placeholder="DD/MM/YYYY"
+            >
+            <mat-datepicker-toggle matSuffix [for]="pickerFin"></mat-datepicker-toggle>
+            <mat-datepicker #pickerFin></mat-datepicker>
+            <mat-error *ngIf="formulario.get('fechaFin')?.hasError('required')">
+              Fecha fin requerida
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- Error de rango de fechas -->
+        <mat-error *ngIf="formulario.hasError('rangoInvalido')" class="range-error">
+          La fecha de inicio debe ser anterior o igual a la fecha de fin
+        </mat-error>
+
+        <!-- Presets de Fechas -->
+        <div class="presets-container">
+          <span class="presets-label">Accesos rápidos:</span>
+          <button
+            mat-button
+            type="button"
+            (click)="aplicarPresetFecha('ultima_quincena')"
+            matTooltip="Seleccionar la última quincena completa"
+          >
+            <mat-icon>calendar_view_week</mat-icon>
+            Última Quincena
+          </button>
+          <button
+            mat-button
+            type="button"
+            (click)="aplicarPresetFecha('ultimo_mes')"
+            matTooltip="Seleccionar el mes anterior completo"
+          >
+            <mat-icon>calendar_view_month</mat-icon>
+            Último Mes
+          </button>
+          <button
+            mat-button
+            type="button"
+            (click)="aplicarPresetFecha('mes_actual')"
+            matTooltip="Seleccionar el mes actual"
+          >
+            <mat-icon>today</mat-icon>
+            Mes Actual
+          </button>
+          <button
+            mat-button
+            type="button"
+            (click)="aplicarPresetFecha('trimestre_actual')"
+            matTooltip="Seleccionar el trimestre actual"
+          >
+            <mat-icon>date_range</mat-icon>
+            Trimestre Actual
+          </button>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="actions">
+          <button
+            mat-raised-button
+            color="primary"
+            type="button"
+            (click)="generarResumen()"
+            [disabled]="formulario.invalid || isLoading() || !selectedGuardian"
+          >
+            <mat-icon>analytics</mat-icon>
+            <span *ngIf="!isLoading()">Generar Resumen</span>
+            <mat-spinner *ngIf="isLoading()" diameter="20" class="inline-spinner"></mat-spinner>
+          </button>
+
+          <button
+            mat-button
+            type="button"
+            (click)="limpiar()"
+            [disabled]="isLoading()"
+          >
+            <mat-icon>clear</mat-icon>
+            Limpiar
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Sección 2: Tarjetas de Estadísticas -->
+  <div *ngIf="resumenGenerado && !isLoading()" class="estadisticas-section">
+    <h2 class="section-title">
+      <mat-icon>assessment</mat-icon>
+      Estadísticas del Periodo
+    </h2>
+
+    <div class="estadisticas-grid">
+      <mat-card
+        *ngFor="let stat of estadisticas"
+        class="stat-card"
+        [ngClass]="'stat-card-' + stat.color"
+        [matTooltip]="stat.tooltip || ''"
+      >
+        <mat-card-content>
+          <div class="stat-header">
+            <mat-icon class="stat-icon">{{ stat.icono }}</mat-icon>
+            <span class="stat-titulo">{{ stat.titulo }}</span>
+          </div>
+          <div class="stat-valor">{{ stat.valor }}</div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <!-- Sección 3: Tabla Detallada -->
+  <div *ngIf="resumenGenerado && !isLoading()" class="tabla-section">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>list</mat-icon>
+          Detalle de Turnos
+        </mat-card-title>
+        <mat-card-subtitle *ngIf="resumenData">
+          {{ resumenData.nombre_empleado }} - Total: {{ dataSource.data.length }} turno(s)
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <!-- Empty State -->
+        <div *ngIf="dataSource.data.length === 0" class="empty-state">
+          <mat-icon>search_off</mat-icon>
+          <h3>No se encontraron turnos</h3>
+          <p>No se encontraron turnos para este guardián en el periodo seleccionado.</p>
+          <p class="hint">Intente con otro rango de fechas</p>
+        </div>
+
+        <!-- Tabla con datos -->
+        <div *ngIf="dataSource.data.length > 0" class="table-container">
+          <table mat-table [dataSource]="dataSource" matSort class="turnos-table">
+            <!-- Columna Fecha -->
+            <ng-container matColumnDef="fecha">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Fecha</th>
+              <td mat-cell *matCellDef="let turno">
+                {{ turno.fecha | date:'dd/MM/yyyy' }}
+              </td>
+            </ng-container>
+
+            <!-- Columna Puesto -->
+            <ng-container matColumnDef="puesto">
+              <th mat-header-cell *matHeaderCellDef>Puesto</th>
+              <td mat-cell *matCellDef="let turno">
+                <div class="puesto-info">
+                  <strong>{{ turno.puesto?.nombre || 'N/A' }}</strong>
+                  <small *ngIf="turno.puesto?.codigo">({{ turno.puesto.codigo }})</small>
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Columna Horas Normales -->
+            <ng-container matColumnDef="horas_normales">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-center">
+                Horas Normales
+              </th>
+              <td mat-cell *matCellDef="let turno" class="text-center">
+                {{ turno.horas_normales.toFixed(2) }}
+              </td>
+            </ng-container>
+
+            <!-- Columna Horas Extras -->
+            <ng-container matColumnDef="horas_extras">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-center">
+                Horas Extras
+              </th>
+              <td mat-cell *matCellDef="let turno" class="text-center">
+                {{ turno.horas_extras.toFixed(2) }}
+              </td>
+            </ng-container>
+
+            <!-- Columna Total Horas -->
+            <ng-container matColumnDef="total_horas">
+              <th mat-header-cell *matHeaderCellDef class="text-center">
+                <strong>Total Horas</strong>
+              </th>
+              <td mat-cell *matCellDef="let turno" class="text-center">
+                <strong>{{ calcularTotalHoras(turno).toFixed(2) }}</strong>
+              </td>
+            </ng-container>
+
+            <!-- Columna Tipo Turno -->
+            <ng-container matColumnDef="tipo_turno">
+              <th mat-header-cell *matHeaderCellDef class="text-center">Tipo</th>
+              <td mat-cell *matCellDef="let turno" class="text-center">
+                <mat-chip
+                  [ngClass]="turno.tipo_turno === 'DIURNO' ? 'chip-diurno' : 'chip-nocturno'"
+                >
+                  <mat-icon class="chip-icon">
+                    {{ turno.tipo_turno === 'DIURNO' ? 'wb_sunny' : 'nights_stay' }}
+                  </mat-icon>
+                  {{ turno.tipo_turno }}
+                </mat-chip>
+              </td>
+            </ng-container>
+
+            <!-- Columna Feriado -->
+            <ng-container matColumnDef="es_feriado">
+              <th mat-header-cell *matHeaderCellDef class="text-center">Feriado</th>
+              <td mat-cell *matCellDef="let turno" class="text-center">
+                <mat-chip *ngIf="turno.es_feriado" class="chip-feriado">
+                  <mat-icon class="chip-icon">celebration</mat-icon>
+                  {{ turno.tipo_feriado || 'FERIADO' }}
+                </mat-chip>
+                <span *ngIf="!turno.es_feriado" class="no-feriado">-</span>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          </table>
+
+          <mat-paginator
+            [pageSizeOptions]="[10, 25, 50, 100]"
+            [pageSize]="10"
+            showFirstLastButtons
+            aria-label="Seleccionar página de turnos"
+          ></mat-paginator>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Loading State (mientras se genera el resumen) -->
+  <div *ngIf="isLoading()" class="loading-container">
+    <mat-spinner diameter="60"></mat-spinner>
+    <p>Generando resumen...</p>
+  </div>
+</div>

@@ -27,3 +27,13 @@ nul
 # Temporary Excel files
 ~$*.xlsx
 .gemini/
+
+# Node modules
+node_modules/
+**/node_modules/
+
+# Video tutorials app local deps
+videos-tutoriales/node_modules/
+videos-tutoriales/dist/
+videos-tutoriales/build/
+videos-tutoriales/out/

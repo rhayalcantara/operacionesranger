@@ -1,0 +1,201 @@
+<h2 mat-dialog-title>{{ isEditMode ? 'Editar Servicio por Puesto' : 'Nuevo Servicio por Puesto' }}</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="servicioForm" class="servicio-form">
+    <!-- Selector Jerárquico: Cliente → Ubicación → Puesto -->
+    <div class="section-header">
+      <mat-icon>location_city</mat-icon>
+      <h3>Puesto de Servicio</h3>
+    </div>
+
+    <div class="form-row">
+      <!-- Selector de Cliente -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Cliente *</mat-label>
+        <mat-select formControlName="cliente_id_selector">
+          <mat-option *ngFor="let cliente of clientes" [value]="cliente.id">
+            {{ cliente.nombre }}
+          </mat-option>
+        </mat-select>
+        <mat-icon matPrefix>business</mat-icon>
+        <mat-error *ngIf="servicioForm.get('cliente_id_selector')?.hasError('required')">
+          Debe seleccionar un cliente
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Selector de Ubicación -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Ubicación *</mat-label>
+        <mat-select
+          formControlName="ubicacion_id_selector"
+          [disabled]="!servicioForm.get('cliente_id_selector')?.value || ubicacionesDisponibles.length === 0">
+          <mat-option *ngFor="let ubicacion of ubicacionesDisponibles" [value]="ubicacion.id">
+            {{ ubicacion.nombre }}
+          </mat-option>
+        </mat-select>
+        <mat-icon matPrefix>location_on</mat-icon>
+        <mat-hint *ngIf="!servicioForm.get('cliente_id_selector')?.value">
+          Primero seleccione un cliente
+        </mat-hint>
+        <mat-error *ngIf="servicioForm.get('ubicacion_id_selector')?.hasError('required')">
+          Debe seleccionar una ubicación
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Selector de Puesto -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Puesto *</mat-label>
+        <mat-select
+          formControlName="puesto_id"
+          [disabled]="!servicioForm.get('ubicacion_id_selector')?.value || puestosDisponibles.length === 0">
+          <mat-option *ngFor="let puesto of puestosDisponibles" [value]="puesto.id">
+            {{ puesto.codigo }} - {{ puesto.nombre }}
+          </mat-option>
+        </mat-select>
+        <mat-icon matPrefix>work</mat-icon>
+        <mat-hint *ngIf="!servicioForm.get('ubicacion_id_selector')?.value">
+          Primero seleccione una ubicación
+        </mat-hint>
+        <mat-error *ngIf="servicioForm.get('puesto_id')?.hasError('required')">
+          Debe seleccionar un puesto
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- Tipo de Turno -->
+    <div class="section-header">
+      <mat-icon>schedule</mat-icon>
+      <h3>Configuración del Turno</h3>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Tipo de Turno *</mat-label>
+        <mat-select formControlName="tipo_turno">
+          <mat-option value="DIURNO">Diurno</mat-option>
+          <mat-option value="NOCTURNO">Nocturno</mat-option>
+        </mat-select>
+        <mat-icon matPrefix>wb_sunny</mat-icon>
+        <mat-error *ngIf="servicioForm.get('tipo_turno')?.hasError('required')">
+          Debe seleccionar un tipo de turno
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- Asignación de Guardianes por Día -->
+    <div class="section-header">
+      <mat-icon>group</mat-icon>
+      <h3>Asignación Semanal de Guardianes</h3>
+    </div>
+
+    <!-- Asignación rápida: un guardián a todos los días -->
+    <div class="asignar-todos-row">
+      <mat-form-field appearance="outline" class="asignar-todos-field">
+        <mat-label>Guardián para todos los días</mat-label>
+        <input
+          matInput
+          [formControl]="guardianTodosControl"
+          [matAutocomplete]="autoTodos"
+          placeholder="Buscar guardián..."
+        >
+        <mat-icon matPrefix>person_add</mat-icon>
+        <mat-autocomplete
+          #autoTodos="matAutocomplete"
+          [displayWith]="displayGuardian"
+          (optionSelected)="guardianTodosSeleccionado = $event.option.value">
+          <mat-option *ngFor="let guardian of guardianTodosOptions" [value]="guardian">
+            <div class="guardian-option">
+              <span class="guardian-nombre">{{ guardian.nombres }} {{ guardian.apellidos }}</span>
+              <span class="guardian-cedula">{{ guardian.cedula_empleado }}</span>
+            </div>
+          </mat-option>
+        </mat-autocomplete>
+        <mat-hint>Busque y seleccione, luego presione "Asignar a todos"</mat-hint>
+      </mat-form-field>
+      <button
+        mat-raised-button
+        color="accent"
+        class="btn-asignar-todos"
+        (click)="asignarATodos()"
+        [disabled]="!guardianTodosSeleccionado"
+        type="button">
+        <mat-icon>group_add</mat-icon>
+        Asignar a todos
+      </button>
+      <button
+        mat-button
+        class="btn-limpiar-todos"
+        (click)="limpiarTodos()"
+        type="button"
+        matTooltip="Limpiar todos los días">
+        <mat-icon>clear_all</mat-icon>
+        Limpiar todos
+      </button>
+    </div>
+
+    <div class="dias-grid">
+      <div class="dia-field" *ngFor="let dia of diasSemana">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ dia.label }}</mat-label>
+          <input
+            matInput
+            [formControl]="guardianSearchControls[dia.key]"
+            [matAutocomplete]="autoComplete"
+            placeholder="Buscar guardián..."
+          >
+          <mat-icon matPrefix>person</mat-icon>
+          <button
+            mat-icon-button
+            matSuffix
+            *ngIf="guardianSearchControls[dia.key].value"
+            (click)="limpiarGuardian(dia.key)"
+            matTooltip="Limpiar asignación">
+            <mat-icon>clear</mat-icon>
+          </button>
+          <mat-autocomplete
+            #autoComplete="matAutocomplete"
+            [displayWith]="displayGuardian"
+            (optionSelected)="onGuardianSelected(dia.key, $event.option.value)">
+            <mat-option *ngFor="let guardian of guardianOptions[dia.key]" [value]="guardian">
+              <div class="guardian-option">
+                <span class="guardian-nombre">{{ guardian.nombres }} {{ guardian.apellidos }}</span>
+                <span class="guardian-cedula">{{ guardian.cedula_empleado }}</span>
+              </div>
+            </mat-option>
+          </mat-autocomplete>
+          <mat-hint>Escriba para buscar</mat-hint>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Checkboxes -->
+    <div class="checkboxes-row">
+      <mat-checkbox formControlName="cobrada">
+        Cobrada
+      </mat-checkbox>
+
+      <mat-checkbox formControlName="activo">
+        Activo
+      </mat-checkbox>
+    </div>
+  </form>
+
+  <!-- Loading overlay -->
+  <div *ngIf="isLoading" class="loading-overlay">
+    <mat-spinner></mat-spinner>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()" [disabled]="isLoading">
+    Cancelar
+  </button>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="onSubmit()"
+    [disabled]="servicioForm.invalid || isLoading">
+    <mat-icon>save</mat-icon>
+    {{ isEditMode ? 'Actualizar' : 'Crear' }}
+  </button>
+</mat-dialog-actions>

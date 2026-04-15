@@ -1,0 +1,160 @@
+<h2 mat-dialog-title>{{ isEditMode ? 'Editar Puesto' : 'Nuevo Puesto' }}</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="puestoForm" class="puesto-form">
+    <!-- Selector Jerárquico: Cliente → Ubicación -->
+    <div class="section-header">
+      <mat-icon>location_city</mat-icon>
+      <h3>Ubicación del Puesto</h3>
+    </div>
+
+    <div class="form-row">
+      <!-- Selector de Cliente -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Cliente *</mat-label>
+        <mat-select formControlName="cliente_id_selector" (selectionChange)="onClienteChange()">
+          <mat-option *ngFor="let cliente of clientes" [value]="cliente.id">
+            {{ cliente.nombre }}
+          </mat-option>
+        </mat-select>
+        <mat-icon matPrefix>business</mat-icon>
+        <mat-error *ngIf="puestoForm.get('cliente_id_selector')?.hasError('required')">
+          Debe seleccionar un cliente
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Selector de Ubicación -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Ubicación *</mat-label>
+        <mat-select
+          formControlName="ubicacion_id"
+          [disabled]="!puestoForm.get('cliente_id_selector')?.value || ubicacionesDisponibles.length === 0">
+          <mat-option *ngFor="let ubicacion of ubicacionesDisponibles" [value]="ubicacion.id">
+            {{ ubicacion.nombre }}
+          </mat-option>
+        </mat-select>
+        <mat-icon matPrefix>location_on</mat-icon>
+        <mat-hint *ngIf="!puestoForm.get('cliente_id_selector')?.value">
+          Primero seleccione un cliente
+        </mat-hint>
+        <mat-hint *ngIf="puestoForm.get('cliente_id_selector')?.value && ubicacionesDisponibles.length === 0">
+          No hay ubicaciones disponibles para este cliente
+        </mat-hint>
+        <mat-error *ngIf="puestoForm.get('ubicacion_id')?.hasError('required')">
+          Debe seleccionar una ubicación
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- Datos del Puesto -->
+    <div class="section-header">
+      <mat-icon>security</mat-icon>
+      <h3>Información del Puesto</h3>
+    </div>
+
+    <div class="form-row">
+      <!-- Código -->
+      <mat-form-field appearance="outline">
+        <mat-label>Código *</mat-label>
+        <input matInput formControlName="codigo" placeholder="Ej: P001" maxlength="20">
+        <mat-icon matPrefix>tag</mat-icon>
+        <mat-hint>Código único dentro de la ubicación</mat-hint>
+        <mat-error *ngIf="puestoForm.get('codigo')?.hasError('required')">
+          El código es requerido
+        </mat-error>
+        <mat-error *ngIf="puestoForm.get('codigo')?.hasError('codigoDuplicado')">
+          Este código ya existe para la ubicación seleccionada
+        </mat-error>
+        <mat-spinner
+          *ngIf="puestoForm.get('codigo')?.pending"
+          diameter="20"
+          class="inline-spinner">
+        </mat-spinner>
+      </mat-form-field>
+
+      <!-- Nombre -->
+      <mat-form-field appearance="outline">
+        <mat-label>Nombre *</mat-label>
+        <input matInput formControlName="nombre" placeholder="Ej: Portón Principal" maxlength="100">
+        <mat-icon matPrefix>badge</mat-icon>
+        <mat-error *ngIf="puestoForm.get('nombre')?.hasError('required')">
+          El nombre es requerido
+        </mat-error>
+        <mat-error *ngIf="puestoForm.get('nombre')?.hasError('minlength')">
+          Mínimo 3 caracteres
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- Descripción -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Descripción</mat-label>
+      <textarea
+        matInput
+        formControlName="descripcion"
+        rows="3"
+        maxlength="1000"
+        placeholder="Descripción detallada del puesto...">
+      </textarea>
+      <mat-icon matPrefix>description</mat-icon>
+      <mat-hint align="end">{{ puestoForm.get('descripcion')?.value?.length || 0 }}/1000</mat-hint>
+      <mat-error *ngIf="puestoForm.get('descripcion')?.hasError('maxlength')">
+        Máximo 1000 caracteres
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Cantidad de Guardianes -->
+    <mat-form-field appearance="outline">
+      <mat-label>Cantidad de Guardianes</mat-label>
+      <input
+        matInput
+        type="number"
+        formControlName="cantidad_guardianes"
+        min="1"
+        max="10"
+        placeholder="1">
+      <mat-icon matPrefix>group</mat-icon>
+      <mat-hint>Número de guardianes necesarios (1-10)</mat-hint>
+      <mat-error *ngIf="puestoForm.get('cantidad_guardianes')?.hasError('min')">
+        Mínimo 1 guardián
+      </mat-error>
+      <mat-error *ngIf="puestoForm.get('cantidad_guardianes')?.hasError('max')">
+        Máximo 10 guardianes
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Checkboxes -->
+    <div class="checkboxes-row">
+      <mat-checkbox formControlName="requiere_turno_diurno">
+        Requiere Turno Diurno
+      </mat-checkbox>
+
+      <mat-checkbox formControlName="requiere_turno_nocturno">
+        Requiere Turno Nocturno
+      </mat-checkbox>
+
+      <mat-checkbox formControlName="activo">
+        Activo
+      </mat-checkbox>
+    </div>
+  </form>
+
+  <!-- Loading overlay -->
+  <div *ngIf="isLoading" class="loading-overlay">
+    <mat-spinner></mat-spinner>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()" [disabled]="isLoading">
+    Cancelar
+  </button>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="onSubmit()"
+    [disabled]="puestoForm.invalid || isLoading">
+    <mat-icon>save</mat-icon>
+    {{ isEditMode ? 'Actualizar' : 'Crear' }}
+  </button>
+</mat-dialog-actions>

@@ -1,0 +1,339 @@
+<div class="turno-form-container" *ngIf="!turnoCreado">
+  <h2 mat-dialog-title>
+    <mat-icon>{{ isEditMode ? 'edit' : 'add' }}</mat-icon>
+    {{ isEditMode ? 'Editar Turno' : 'Registrar Nuevo Turno' }}
+  </h2>
+
+  <mat-dialog-content>
+    <form [formGroup]="turnoForm" class="form-grid">
+
+      <!-- Section: Guardian -->
+      <div class="section-header">
+        <mat-icon>person</mat-icon>
+        <h3>Guardián</h3>
+      </div>
+
+      <!-- Guardian Autocomplete -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Guardián *</mat-label>
+        <input
+          type="text"
+          matInput
+          [formControl]="searchControl"
+          [matAutocomplete]="autoGuardian"
+          placeholder="Buscar por nombre o cédula">
+        <mat-icon matPrefix>person_search</mat-icon>
+        <button
+          mat-icon-button
+          matSuffix
+          *ngIf="searchControl.value"
+          (click)="onGuardianCleared()"
+          type="button">
+          <mat-icon>close</mat-icon>
+        </button>
+        <mat-autocomplete
+          #autoGuardian="matAutocomplete"
+          [displayWith]="displayGuardian.bind(this)"
+          (optionSelected)="onGuardianSelected($event.option.value)">
+          <mat-option *ngFor="let guardian of guardianesFiltered | async" [value]="guardian">
+            <div class="guardian-option">
+              <span class="guardian-name">{{ guardian.nombres }} {{ guardian.apellidos }}</span>
+              <span class="guardian-cedula">{{ guardian.cedula_empleado }}</span>
+            </div>
+          </mat-option>
+        </mat-autocomplete>
+        <mat-error *ngIf="turnoForm.get('empleado_id')?.hasError('required')">
+          Debe seleccionar un guardián
+        </mat-error>
+        <mat-hint>Escriba al menos 2 caracteres para buscar</mat-hint>
+      </mat-form-field>
+
+      <!-- Section: Location -->
+      <div class="section-header">
+        <mat-icon>location_on</mat-icon>
+        <h3>Ubicación del Puesto</h3>
+      </div>
+
+      <!-- Cliente Selector -->
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Cliente *</mat-label>
+        <mat-select formControlName="cliente_id_selector">
+          <mat-option *ngFor="let cliente of clientes" [value]="cliente.id">
+            {{ cliente.nombre }}
+          </mat-option>
+        </mat-select>
+        <mat-icon matPrefix>business</mat-icon>
+        <mat-error>Seleccione un cliente</mat-error>
+      </mat-form-field>
+
+      <!-- Ubicación Selector -->
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Ubicación *</mat-label>
+        <mat-select
+          formControlName="ubicacion_id_selector"
+          [disabled]="ubicacionesDisponibles.length === 0">
+          <mat-option *ngFor="let ubicacion of ubicacionesDisponibles" [value]="ubicacion.id">
+            {{ ubicacion.nombre }}
+          </mat-option>
+        </mat-select>
+        <mat-icon matPrefix>place</mat-icon>
+        <mat-error>Seleccione una ubicación</mat-error>
+        <mat-hint *ngIf="!turnoForm.get('cliente_id_selector')?.value">
+          Primero seleccione un cliente
+        </mat-hint>
+      </mat-form-field>
+
+      <!-- Puesto Selector -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Puesto *</mat-label>
+        <mat-select
+          formControlName="puesto_id"
+          [disabled]="puestosDisponibles.length === 0">
+          <mat-option *ngFor="let puesto of puestosDisponibles" [value]="puesto.id">
+            {{ puesto.codigo }} - {{ puesto.nombre }}
+          </mat-option>
+        </mat-select>
+        <mat-icon matPrefix>work</mat-icon>
+        <mat-error>Seleccione un puesto</mat-error>
+        <mat-hint *ngIf="!turnoForm.get('ubicacion_id_selector')?.value">
+          Primero seleccione una ubicación
+        </mat-hint>
+      </mat-form-field>
+
+      <!-- Section: Date and Time -->
+      <div class="section-header">
+        <mat-icon>event</mat-icon>
+        <h3>Fecha y Horario</h3>
+      </div>
+
+      <!-- Fecha -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Fecha *</mat-label>
+        <input
+          matInput
+          [matDatepicker]="pickerFecha"
+          formControlName="fecha"
+          placeholder="Seleccione fecha"
+          required>
+        <mat-datepicker-toggle matIconSuffix [for]="pickerFecha"></mat-datepicker-toggle>
+        <mat-datepicker #pickerFecha></mat-datepicker>
+        <mat-error *ngIf="turnoForm.get('fecha')?.hasError('required')">
+          Fecha es requerida
+        </mat-error>
+        <mat-error *ngIf="turnoForm.get('fecha')?.hasError('fechaFutura')">
+          No puede registrar turnos con más de 7 días de anticipación
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Hora Entrada -->
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Hora Entrada *</mat-label>
+        <input
+          matInput
+          type="time"
+          formControlName="hora_entrada"
+          required>
+        <mat-icon matPrefix>access_time</mat-icon>
+        <mat-error>Hora de entrada es requerida</mat-error>
+      </mat-form-field>
+
+      <!-- Hora Salida -->
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Hora Salida *</mat-label>
+        <input
+          matInput
+          type="time"
+          formControlName="hora_salida"
+          required>
+        <mat-icon matPrefix>access_time</mat-icon>
+        <mat-error>Hora de salida es requerida</mat-error>
+      </mat-form-field>
+
+      <!-- Section: Hours -->
+      <div class="section-header">
+        <mat-icon>schedule</mat-icon>
+        <h3>Horas Trabajadas</h3>
+      </div>
+
+      <!-- Horas Normales -->
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Horas Normales *</mat-label>
+        <input
+          matInput
+          type="number"
+          step="0.5"
+          min="0"
+          max="12"
+          formControlName="horas_normales"
+          required>
+        <mat-icon matPrefix>schedule</mat-icon>
+        <mat-error *ngIf="turnoForm.get('horas_normales')?.hasError('required')">
+          Campo requerido
+        </mat-error>
+        <mat-error *ngIf="turnoForm.get('horas_normales')?.hasError('max')">
+          Máximo 12 horas
+        </mat-error>
+        <mat-hint>Máximo 12 horas</mat-hint>
+      </mat-form-field>
+
+      <!-- Horas Extras -->
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Horas Extras</mat-label>
+        <input
+          matInput
+          type="number"
+          step="0.5"
+          min="0"
+          max="4"
+          formControlName="horas_extras">
+        <mat-icon matPrefix>schedule</mat-icon>
+        <mat-error *ngIf="turnoForm.get('horas_extras')?.hasError('max')">
+          Máximo 4 horas
+        </mat-error>
+        <mat-hint>Máximo 4 horas (opcional)</mat-hint>
+      </mat-form-field>
+
+      <!-- Total Hours Warning -->
+      <div class="form-row full-width" *ngIf="turnoForm.hasError('horasExcedidas')">
+        <div class="full-width-error">
+          <mat-icon>error</mat-icon>
+          <span>Total de horas (normales + extras) no puede exceder 16 horas</span>
+        </div>
+      </div>
+
+      <!-- Duplicate Warning -->
+      <div class="form-row full-width" *ngIf="turnoForm.hasError('turnoDuplicado')">
+        <div class="full-width-error">
+          <mat-icon>error</mat-icon>
+          <span>Ya existe un turno registrado para este guardián en este puesto en la fecha seleccionada</span>
+        </div>
+      </div>
+
+      <!-- Section: Notes -->
+      <div class="section-header">
+        <mat-icon>notes</mat-icon>
+        <h3>Observaciones</h3>
+      </div>
+
+      <!-- Observaciones -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Observaciones</mat-label>
+        <textarea
+          matInput
+          formControlName="observaciones"
+          rows="3"
+          maxlength="500"
+          placeholder="Notas adicionales (opcional)">
+        </textarea>
+        <mat-hint align="end">
+          {{ turnoForm.get('observaciones')?.value?.length || 0 }}/500
+        </mat-hint>
+      </mat-form-field>
+
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="onCancel()" [disabled]="isLoading()">
+      <mat-icon>close</mat-icon>
+      Cancelar
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="onSubmit()"
+      [disabled]="turnoForm.invalid || isLoading()">
+      <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+      {{ isEditMode ? 'Guardar Cambios' : 'Registrar Turno' }}
+      <mat-spinner
+        *ngIf="isLoading()"
+        diameter="20"
+        class="inline-spinner">
+      </mat-spinner>
+    </button>
+  </mat-dialog-actions>
+</div>
+
+<!-- Success Result Card -->
+<div class="resultado-container" *ngIf="turnoCreado">
+  <mat-card class="resultado-card">
+    <mat-card-header>
+      <mat-icon class="success-icon">check_circle</mat-icon>
+      <mat-card-title>Turno Registrado Exitosamente</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="resultado-grid">
+        <!-- Basic Info -->
+        <div class="resultado-item">
+          <span class="label">Guardián:</span>
+          <span class="value">{{ turnoCreado.empleado?.nombre }}</span>
+        </div>
+
+        <div class="resultado-item">
+          <span class="label">Cédula:</span>
+          <span class="value">{{ turnoCreado.empleado?.cedula }}</span>
+        </div>
+
+        <div class="resultado-item">
+          <span class="label">Puesto:</span>
+          <span class="value">{{ turnoCreado.puesto?.nombre }}</span>
+        </div>
+
+        <div class="resultado-item">
+          <span class="label">Fecha:</span>
+          <span class="value">{{ turnoCreado.fecha | date:'dd/MM/yyyy' }}</span>
+        </div>
+
+        <!-- Hours -->
+        <div class="resultado-item">
+          <span class="label">Horas Normales:</span>
+          <span class="value">{{ turnoCreado.horas_normales }}</span>
+        </div>
+
+        <div class="resultado-item">
+          <span class="label">Horas Extras:</span>
+          <span class="value">{{ turnoCreado.horas_extras }}</span>
+        </div>
+
+        <!-- Auto-calculated fields (highlighted) -->
+        <div class="resultado-item auto-calculated">
+          <span class="label">Tipo de Turno:</span>
+          <mat-chip [class.diurno]="turnoCreado.tipo_turno === 'DIURNO'"
+                    [class.nocturno]="turnoCreado.tipo_turno === 'NOCTURNO'">
+            {{ turnoCreado.tipo_turno }}
+          </mat-chip>
+        </div>
+
+        <div class="resultado-item auto-calculated">
+          <span class="label">Es Feriado:</span>
+          <mat-chip [class.feriado]="turnoCreado.es_feriado"
+                    [class.normal]="!turnoCreado.es_feriado">
+            {{ turnoCreado.es_feriado ? 'SÍ' : 'NO' }}
+          </mat-chip>
+        </div>
+
+        <div class="resultado-item auto-calculated full-width" *ngIf="turnoCreado.tipo_feriado">
+          <span class="label">Tipo Feriado:</span>
+          <span class="value">{{ turnoCreado.tipo_feriado }}</span>
+        </div>
+      </div>
+
+      <div class="info-message">
+        <mat-icon>info</mat-icon>
+        <span>Los campos resaltados fueron calculados automáticamente por el sistema</span>
+      </div>
+    </mat-card-content>
+
+    <mat-card-actions>
+      <button mat-raised-button color="primary" (click)="cerrarYVolverLista()">
+        <mat-icon>list</mat-icon>
+        Ver Lista de Turnos
+      </button>
+      <button mat-stroked-button (click)="crearOtroTurno()">
+        <mat-icon>add</mat-icon>
+        Registrar Otro Turno
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>

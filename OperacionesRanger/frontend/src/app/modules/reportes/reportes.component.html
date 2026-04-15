@@ -1,0 +1,51 @@
+<div class="reportes-container">
+  <div class="header">
+    <h1 class="title">
+      <mat-icon>bar_chart</mat-icon>
+      Reportes del Sistema
+    </h1>
+    <p class="subtitle">
+      Seleccione el tipo de reporte que desea generar
+    </p>
+  </div>
+
+  <div class="reportes-grid">
+    <mat-card
+      *ngFor="let reporte of reportes"
+      class="reporte-card"
+      [class.disabled]="!reporte.available"
+    >
+      <mat-card-header>
+        <div class="card-icon" [class.disabled-icon]="!reporte.available">
+          <mat-icon>{{ reporte.icon }}</mat-icon>
+        </div>
+      </mat-card-header>
+
+      <mat-card-content>
+        <h2 class="card-title">{{ reporte.title }}</h2>
+        <p class="card-description">{{ reporte.description }}</p>
+      </mat-card-content>
+
+      <mat-card-actions>
+        <button
+          mat-raised-button
+          color="primary"
+          *ngIf="reporte.available"
+          (click)="navegarA(reporte.route)"
+        >
+          <mat-icon>arrow_forward</mat-icon>
+          Ir al Reporte
+        </button>
+
+        <button
+          mat-stroked-button
+          *ngIf="!reporte.available"
+          disabled
+        >
+          <mat-icon>lock</mat-icon>
+          Próximamente
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+</div>

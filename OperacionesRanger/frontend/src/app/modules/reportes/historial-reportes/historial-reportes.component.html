@@ -1,0 +1,125 @@
+<div class="historial-container">
+  <!-- Header -->
+  <div class="header">
+    <h1 class="title">
+      <mat-icon>history</mat-icon>
+      Historial de Reportes
+    </h1>
+    <p class="subtitle">Reportes CSV generados para integracion con nomina</p>
+  </div>
+
+  <!-- Table Card -->
+  <mat-card class="table-card">
+    <!-- Loading spinner -->
+    <div class="loading-overlay" *ngIf="isLoading()">
+      <mat-spinner diameter="50"></mat-spinner>
+    </div>
+
+    <!-- Table -->
+    <div class="table-container">
+      <table mat-table [dataSource]="dataSource" class="historial-table">
+        <!-- ID -->
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef>#</th>
+          <td mat-cell *matCellDef="let r">{{ r.id }}</td>
+        </ng-container>
+
+        <!-- Usuario -->
+        <ng-container matColumnDef="usuario">
+          <th mat-header-cell *matHeaderCellDef>Usuario</th>
+          <td mat-cell *matCellDef="let r">
+            <span class="usuario-nombre">{{ r.usuario?.nombre_completo || r.usuario?.username }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Periodo -->
+        <ng-container matColumnDef="periodo">
+          <th mat-header-cell *matHeaderCellDef>Periodo</th>
+          <td mat-cell *matCellDef="let r">
+            <span class="periodo">{{ r.fecha_inicio }} a {{ r.fecha_fin }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Cantidad Turnos -->
+        <ng-container matColumnDef="cantidad_turnos">
+          <th mat-header-cell *matHeaderCellDef>Turnos</th>
+          <td mat-cell *matCellDef="let r">
+            <strong>{{ r.cantidad_turnos }}</strong>
+          </td>
+        </ng-container>
+
+        <!-- Fecha Generacion -->
+        <ng-container matColumnDef="fecha_generacion">
+          <th mat-header-cell *matHeaderCellDef>Generado</th>
+          <td mat-cell *matCellDef="let r">
+            {{ r.fecha_generacion | date:'dd/MM/yyyy HH:mm' }}
+          </td>
+        </ng-container>
+
+        <!-- Estado -->
+        <ng-container matColumnDef="estado">
+          <th mat-header-cell *matHeaderCellDef>Estado</th>
+          <td mat-cell *matCellDef="let r">
+            <mat-chip *ngIf="r.nomina_id" class="chip-procesado"
+              [matTooltip]="'Nomina #' + r.nomina_id">
+              Procesado
+            </mat-chip>
+            <mat-chip *ngIf="!r.nomina_id" class="chip-pendiente">
+              Pendiente
+            </mat-chip>
+          </td>
+        </ng-container>
+
+        <!-- Acciones -->
+        <ng-container matColumnDef="acciones">
+          <th mat-header-cell *matHeaderCellDef>Acciones</th>
+          <td mat-cell *matCellDef="let r">
+            <div class="acciones-buttons">
+              <button
+                mat-icon-button
+                color="primary"
+                (click)="descargarReporte(r)"
+                matTooltip="Descargar CSV"
+              >
+                <mat-icon>download</mat-icon>
+              </button>
+
+              <button
+                mat-icon-button
+                color="warn"
+                (click)="marcarProcesado(r)"
+                *ngIf="isAdmin && !r.nomina_id"
+                matTooltip="Marcar como procesado"
+              >
+                <mat-icon>check_circle</mat-icon>
+              </button>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Row definitions -->
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+
+      <!-- Empty state -->
+      <div class="empty-state" *ngIf="!isLoading() && dataSource.length === 0">
+        <mat-icon>description</mat-icon>
+        <p>No se han generado reportes aun</p>
+        <p class="hint">Genere un reporte de nomina para verlo aqui</p>
+      </div>
+    </div>
+
+    <!-- Paginator -->
+    <mat-paginator
+      [length]="totalReportes"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="pageSizeOptions"
+      [pageIndex]="pageIndex"
+      (page)="onPageChange($event)"
+      showFirstLastButtons
+      aria-label="Seleccionar pagina de reportes"
+    >
+    </mat-paginator>
+  </mat-card>
+</div>

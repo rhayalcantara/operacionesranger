@@ -1,0 +1,304 @@
+/* ============================================================
+   OPERACIONES RANGER — Global Styles + Theme System
+   ============================================================ */
+
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+/* ============================================================
+   THEME VARIABLES
+   ============================================================ */
+
+/* DARK THEME (default) — Tactical Operations palette */
+body.dark-theme {
+  --bg-primary:     #060a14;
+  --bg-surface:     #0c1220;
+  --bg-card:        #0f1628;
+  --bg-card-hover:  #141d34;
+  --bg-input:       #0a0f1c;
+  --bg-sidebar:     #0a0e1a;
+  --bg-header:      #0c1224;
+  --bg-content:     #080c16;
+
+  --border:         #1c2a45;
+  --border-light:   #2a3d65;
+  --divider:        #1a2540;
+
+  --text-primary:   #c8d6e5;
+  --text-secondary: #8a9bb5;
+  --text-muted:     #4a5a70;
+  --text-inverse:   #060a14;
+
+  --accent:         #00d4ff;
+  --accent-dim:     rgba(0, 212, 255, 0.1);
+  --accent-glow:    rgba(0, 212, 255, 0.25);
+  --primary:        #1a6fb5;
+  --primary-light:  #2a8fd8;
+
+  --success:        #30d158;
+  --success-bg:     rgba(48, 209, 88, 0.1);
+  --warn:           #ff9500;
+  --warn-bg:        rgba(255, 149, 0, 0.1);
+  --danger:         #ff3b30;
+  --danger-bg:      rgba(255, 59, 48, 0.1);
+  --info:           #5ac8fa;
+  --info-bg:        rgba(90, 200, 250, 0.1);
+
+  --shadow:         rgba(0, 0, 0, 0.4);
+  --shadow-lg:      rgba(0, 0, 0, 0.6);
+  --overlay:        rgba(0, 0, 0, 0.7);
+
+  --scrollbar-thumb: #1c2a45;
+  --scrollbar-track: #0a0e1a;
+
+  /* Material overrides */
+  --mat-toolbar-bg: var(--bg-header);
+  --mat-card-bg:    var(--bg-card);
+}
+
+/* LIGHT THEME */
+body.light-theme {
+  --bg-primary:     #f5f6fa;
+  --bg-surface:     #ffffff;
+  --bg-card:        #ffffff;
+  --bg-card-hover:  #f8f9fc;
+  --bg-input:       #f5f6fa;
+  --bg-sidebar:     #ffffff;
+  --bg-header:      #1a3a5c;
+  --bg-content:     #f0f2f5;
+
+  --border:         #e0e4ea;
+  --border-light:   #d0d5dd;
+  --divider:        #e8ecf0;
+
+  --text-primary:   #1a1a2e;
+  --text-secondary: #4a5568;
+  --text-muted:     #a0aec0;
+  --text-inverse:   #ffffff;
+
+  --accent:         #0077b6;
+  --accent-dim:     rgba(0, 119, 182, 0.08);
+  --accent-glow:    rgba(0, 119, 182, 0.15);
+  --primary:        #1a3a5c;
+  --primary-light:  #2d5f8a;
+
+  --success:        #16a34a;
+  --success-bg:     rgba(22, 163, 74, 0.08);
+  --warn:           #d97706;
+  --warn-bg:        rgba(217, 119, 6, 0.08);
+  --danger:         #dc2626;
+  --danger-bg:      rgba(220, 38, 38, 0.08);
+  --info:           #0284c7;
+  --info-bg:        rgba(2, 132, 199, 0.08);
+
+  --shadow:         rgba(0, 0, 0, 0.08);
+  --shadow-lg:      rgba(0, 0, 0, 0.15);
+  --overlay:        rgba(0, 0, 0, 0.5);
+
+  --scrollbar-thumb: #c4cad0;
+  --scrollbar-track: #f0f2f5;
+
+  --mat-toolbar-bg: var(--bg-header);
+  --mat-card-bg:    var(--bg-card);
+}
+
+/* ============================================================
+   BASE RESET
+   ============================================================ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: 'Barlow Condensed', 'Segoe UI', Roboto, sans-serif;
+  margin: 0;
+  background: var(--bg-content);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-light);
+}
+
+/* ============================================================
+   MATERIAL OVERRIDES — GLOBAL
+   ============================================================ */
+
+/* Toolbar */
+.mat-toolbar.mat-primary {
+  background: var(--bg-header) !important;
+  color: var(--text-inverse) !important;
+
+  body.dark-theme & {
+    color: var(--text-primary) !important;
+    border-bottom: 1px solid var(--border);
+  }
+}
+
+/* Cards */
+.mat-mdc-card {
+  background: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 2px 8px var(--shadow) !important;
+}
+
+/* Tables */
+.mat-mdc-table {
+  background: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+}
+.mat-mdc-header-cell {
+  color: var(--text-secondary) !important;
+  border-bottom-color: var(--border) !important;
+}
+.mat-mdc-cell {
+  color: var(--text-primary) !important;
+  border-bottom-color: var(--border) !important;
+}
+.mat-mdc-row:hover {
+  background: var(--bg-card-hover) !important;
+}
+
+/* Form fields */
+.mat-mdc-text-field-wrapper {
+  background: var(--bg-input) !important;
+}
+.mdc-notched-outline__leading,
+.mdc-notched-outline__notch,
+.mdc-notched-outline__trailing {
+  border-color: var(--border) !important;
+}
+.mat-mdc-form-field.mat-focused {
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing {
+    border-color: var(--accent) !important;
+  }
+}
+.mdc-floating-label {
+  color: var(--text-muted) !important;
+}
+.mat-mdc-input-element {
+  color: var(--text-primary) !important;
+  caret-color: var(--accent) !important;
+}
+
+/* Dialogs */
+.mat-mdc-dialog-container {
+  .mdc-dialog__surface {
+    background: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+  }
+}
+
+/* Menus */
+.mat-mdc-menu-panel {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border) !important;
+}
+.mat-mdc-menu-item {
+  color: var(--text-primary) !important;
+  &:hover {
+    background: var(--bg-card-hover) !important;
+  }
+}
+
+/* Select */
+.mat-mdc-select-value {
+  color: var(--text-primary) !important;
+}
+.mat-mdc-option {
+  color: var(--text-primary) !important;
+  &:hover {
+    background: var(--bg-card-hover) !important;
+  }
+}
+.mat-mdc-select-panel {
+  background: var(--bg-card) !important;
+}
+
+/* Paginator */
+.mat-mdc-paginator {
+  background: var(--bg-card) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* Chips / Badges */
+.mat-mdc-chip {
+  background: var(--accent-dim) !important;
+  color: var(--accent) !important;
+}
+
+/* Divider */
+.mat-divider {
+  border-color: var(--border) !important;
+}
+
+/* Snackbar */
+.success-snackbar {
+  background-color: var(--success) !important;
+  color: white !important;
+  .mat-simple-snackbar-action { color: white !important; }
+}
+.error-snackbar {
+  background-color: var(--danger) !important;
+  color: white !important;
+  .mat-simple-snackbar-action { color: white !important; }
+}
+
+/* ============================================================
+   UTILITY CLASSES
+   ============================================================ */
+
+.full-width { width: 100%; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+
+.mt-1 { margin-top: 8px; }
+.mt-2 { margin-top: 16px; }
+.mt-3 { margin-top: 24px; }
+.mt-4 { margin-top: 32px; }
+.mb-1 { margin-bottom: 8px; }
+.mb-2 { margin-bottom: 16px; }
+.mb-3 { margin-bottom: 24px; }
+.mb-4 { margin-bottom: 32px; }
+.p-1 { padding: 8px; }
+.p-2 { padding: 16px; }
+.p-3 { padding: 24px; }
+.p-4 { padding: 32px; }
+
+.d-flex { display: flex; }
+.flex-column { flex-direction: column; }
+.justify-center { justify-content: center; }
+.align-center { align-items: center; }
+.space-between { justify-content: space-between; }
+
+/* Text colors */
+.text-accent { color: var(--accent) !important; }
+.text-success { color: var(--success) !important; }
+.text-warn { color: var(--warn) !important; }
+.text-danger { color: var(--danger) !important; }
+.text-muted { color: var(--text-muted) !important; }

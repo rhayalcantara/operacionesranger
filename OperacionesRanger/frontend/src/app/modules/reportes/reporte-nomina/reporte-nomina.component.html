@@ -1,0 +1,314 @@
+<div class="reporte-nomina-container">
+  <!-- Header -->
+  <div class="header">
+    <h1 class="title">
+      <mat-icon>assessment</mat-icon>
+      Generar Reporte de Nómina
+    </h1>
+    <p class="subtitle">
+      Seleccione un rango de fechas para generar el reporte CSV de turnos para nómina
+    </p>
+  </div>
+
+  <!-- Formulario de parámetros -->
+  <mat-card class="parametros-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>date_range</mat-icon>
+        Parámetros del Reporte
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="formulario" class="formulario">
+        <!-- Rango de fechas -->
+        <div class="fecha-range-row">
+          <mat-form-field appearance="outline" class="fecha-field">
+            <mat-label>Fecha Inicio</mat-label>
+            <input
+              matInput
+              [matDatepicker]="pickerInicio"
+              formControlName="fechaInicio"
+              [max]="maxDate"
+              placeholder="Seleccione fecha"
+            />
+            <mat-datepicker-toggle matIconSuffix [for]="pickerInicio"></mat-datepicker-toggle>
+            <mat-datepicker #pickerInicio></mat-datepicker>
+            <mat-error *ngIf="formulario.get('fechaInicio')?.hasError('required')">
+              La fecha de inicio es requerida
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="fecha-field">
+            <mat-label>Fecha Fin</mat-label>
+            <input
+              matInput
+              [matDatepicker]="pickerFin"
+              formControlName="fechaFin"
+              [max]="maxDate"
+              placeholder="Seleccione fecha"
+            />
+            <mat-datepicker-toggle matIconSuffix [for]="pickerFin"></mat-datepicker-toggle>
+            <mat-datepicker #pickerFin></mat-datepicker>
+            <mat-error *ngIf="formulario.get('fechaFin')?.hasError('required')">
+              La fecha de fin es requerida
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- Errores de validación del grupo -->
+        <div class="validation-errors" *ngIf="formulario.errors && (formulario.touched || formulario.dirty)">
+          <mat-error *ngIf="formulario.errors['rangoInvalido']">
+            <mat-icon>error</mat-icon>
+            La fecha final debe ser mayor o igual a la fecha inicial
+          </mat-error>
+          <mat-error *ngIf="formulario.errors['rangoMaximo']">
+            <mat-icon>error</mat-icon>
+            El rango de fechas no puede ser mayor a 31 días
+          </mat-error>
+        </div>
+
+        <!-- Presets de fechas -->
+        <div class="presets-row">
+          <span class="presets-label">Accesos rápidos:</span>
+          <button
+            mat-button
+            type="button"
+            class="preset-button"
+            (click)="aplicarPresetFecha('quincena_actual')"
+            matTooltip="Días 1-15 o 16-fin del mes actual"
+          >
+            <mat-icon>today</mat-icon>
+            Quincena Actual
+          </button>
+          <button
+            mat-button
+            type="button"
+            class="preset-button"
+            (click)="aplicarPresetFecha('quincena_anterior')"
+            matTooltip="Quincena anterior a la actual"
+          >
+            <mat-icon>event</mat-icon>
+            Quincena Anterior
+          </button>
+          <button
+            mat-button
+            type="button"
+            class="preset-button"
+            (click)="aplicarPresetFecha('mes_actual')"
+            matTooltip="Todo el mes actual"
+          >
+            <mat-icon>calendar_month</mat-icon>
+            Mes Actual
+          </button>
+          <button
+            mat-button
+            type="button"
+            class="preset-button"
+            (click)="aplicarPresetFecha('mes_anterior')"
+            matTooltip="Todo el mes anterior"
+          >
+            <mat-icon>calendar_today</mat-icon>
+            Mes Anterior
+          </button>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="actions-row">
+          <button
+            mat-raised-button
+            color="accent"
+            type="button"
+            class="action-button"
+            [disabled]="!puedeVerVistaPrevia"
+            (click)="verVistaPrevia()"
+          >
+            <mat-icon>visibility</mat-icon>
+            <span *ngIf="!isLoadingPreview">Vista Previa</span>
+            <mat-spinner *ngIf="isLoadingPreview" diameter="20"></mat-spinner>
+          </button>
+
+          <button
+            mat-raised-button
+            color="primary"
+            type="button"
+            class="action-button"
+            [disabled]="!puedeGenerarCSV"
+            (click)="generarCSV()"
+          >
+            <mat-icon>download</mat-icon>
+            <span *ngIf="!isGeneratingCSV">Generar CSV</span>
+            <mat-spinner *ngIf="isGeneratingCSV" diameter="20"></mat-spinner>
+          </button>
+
+          <button
+            mat-stroked-button
+            type="button"
+            class="action-button"
+            (click)="limpiar()"
+          >
+            <mat-icon>clear</mat-icon>
+            Limpiar
+          </button>
+
+          <button
+            mat-raised-button
+            color="warn"
+            type="button"
+            class="action-button"
+            *ngIf="isAdmin && csvGenerated"
+            (click)="marcarProcesado()"
+            matTooltip="Marcar los turnos de este periodo como procesados en nomina"
+          >
+            <mat-icon>check_circle</mat-icon>
+            Marcar como Procesado
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Vista previa de datos -->
+  <mat-card *ngIf="showPreview" class="preview-card" @fadeIn>
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>preview</mat-icon>
+        Vista Previa del Reporte
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!-- Resumen estadístico -->
+      <div class="resumen-container" *ngIf="previewData">
+        <div class="resumen-info">
+          <mat-icon>info</mat-icon>
+          <span class="resumen-text">
+            <strong>Periodo:</strong>
+            {{ formatFechaDisplay(reportesService.formatDate(formulario.value.fechaInicio)) }} -
+            {{ formatFechaDisplay(reportesService.formatDate(formulario.value.fechaFin)) }}
+          </span>
+          <span class="resumen-separator">|</span>
+          <span class="resumen-text">
+            <strong>Registros:</strong> Mostrando 50 de {{ previewData.total }} totales
+          </span>
+        </div>
+
+        <div class="resumen-stats">
+          <div class="stat-chip">
+            <mat-icon>access_time</mat-icon>
+            <span>Horas Normales: <strong>{{ previewData.resumen.total_horas_normales.toFixed(2) }}</strong></span>
+          </div>
+          <div class="stat-chip">
+            <mat-icon>alarm_add</mat-icon>
+            <span>Horas Extras: <strong>{{ previewData.resumen.total_horas_extras.toFixed(2) }}</strong></span>
+          </div>
+          <div class="stat-chip">
+            <mat-icon>paid</mat-icon>
+            <span>Incentivos: <strong>{{ formatCurrency(previewData.resumen.total_incentivos) }}</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty state -->
+      <div class="empty-state" *ngIf="previewData && previewData.total === 0">
+        <mat-icon>inbox</mat-icon>
+        <h3>No hay turnos registrados</h3>
+        <p>No se encontraron turnos en el periodo seleccionado</p>
+      </div>
+
+      <!-- Tabla de datos -->
+      <div class="table-container" *ngIf="previewData && previewData.total > 0">
+        <table mat-table [dataSource]="dataSource" matSort class="preview-table">
+          <!-- Columna Fecha -->
+          <ng-container matColumnDef="fecha">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Fecha</th>
+            <td mat-cell *matCellDef="let item">{{ formatFechaDisplay(item.fecha) }}</td>
+          </ng-container>
+
+          <!-- Columna Empleado -->
+          <ng-container matColumnDef="empleado">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Empleado</th>
+            <td mat-cell *matCellDef="let item">
+              <div class="empleado-cell">
+                <strong>{{ item.empleado_nombre }}</strong>
+                <span class="empleado-id">ID: {{ item.empleado_id }} | {{ item.empleado_cedula }}</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Columna Puesto -->
+          <ng-container matColumnDef="puesto">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Puesto</th>
+            <td mat-cell *matCellDef="let item">
+              <div class="puesto-cell">
+                <strong>{{ item.puesto_codigo }}</strong>
+                <span class="puesto-nombre">{{ item.puesto_nombre }}</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Columna Horas Normales -->
+          <ng-container matColumnDef="horas_normales">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Horas Norm.</th>
+            <td mat-cell *matCellDef="let item">{{ item.horas_normales.toFixed(2) }}</td>
+          </ng-container>
+
+          <!-- Columna Horas Extras -->
+          <ng-container matColumnDef="horas_extras">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Horas Ext.</th>
+            <td mat-cell *matCellDef="let item">{{ item.horas_extras.toFixed(2) }}</td>
+          </ng-container>
+
+          <!-- Columna Total Horas -->
+          <ng-container matColumnDef="total_horas">
+            <th mat-header-cell *matHeaderCellDef>Total</th>
+            <td mat-cell *matCellDef="let item" class="total-cell">
+              <strong>{{ calcularTotalHoras(item).toFixed(2) }}</strong>
+            </td>
+          </ng-container>
+
+          <!-- Columna Tipo Turno -->
+          <ng-container matColumnDef="tipo_turno">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Tipo</th>
+            <td mat-cell *matCellDef="let item">
+              <mat-chip [ngClass]="getTipoTurnoClass(item.tipo_turno)" class="tipo-chip">
+                <mat-icon>{{ getTipoTurnoIcon(item.tipo_turno) }}</mat-icon>
+                {{ item.tipo_turno }}
+              </mat-chip>
+            </td>
+          </ng-container>
+
+          <!-- Columna Feriado -->
+          <ng-container matColumnDef="es_feriado">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Feriado</th>
+            <td mat-cell *matCellDef="let item">
+              <mat-chip *ngIf="item.es_feriado" class="feriado-chip">
+                <mat-icon>celebration</mat-icon>
+                {{ item.tipo_feriado || 'FERIADO' }}
+              </mat-chip>
+              <span *ngIf="!item.es_feriado" class="no-feriado">-</span>
+            </td>
+          </ng-container>
+
+          <!-- Columna Incentivo -->
+          <ng-container matColumnDef="incentivo">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Incentivo</th>
+            <td mat-cell *matCellDef="let item" class="incentivo-cell">
+              {{ formatCurrency(item.incentivo) }}
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+
+        <!-- Paginador -->
+        <mat-paginator
+          [pageSizeOptions]="[10, 25, 50]"
+          [pageSize]="10"
+          showFirstLastButtons
+        ></mat-paginator>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

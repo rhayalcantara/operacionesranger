@@ -1,0 +1,221 @@
+<div class="configuracion-turnos-container">
+  <!-- Header -->
+  <div class="header">
+    <h1>
+      <mat-icon>schedule</mat-icon>
+      Configuración de Turnos
+    </h1>
+  </div>
+
+  <!-- Información -->
+  <mat-card class="info-card">
+    <mat-card-content>
+      <div class="info-content">
+        <mat-icon color="primary">info</mat-icon>
+        <div>
+          <p><strong>Configuración de horarios de turnos</strong></p>
+          <p class="info-text">
+            Define los horarios para los turnos DIURNO y NOCTURNO. Los horarios deben ser contiguos
+            (el turno diurno debe terminar exactamente cuando comienza el nocturno).
+          </p>
+          <p class="info-text" *ngIf="!isAdmin()">
+            <mat-icon class="warning-icon">warning</mat-icon>
+            Solo los administradores pueden modificar esta configuración.
+          </p>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Spinner de carga -->
+  <div *ngIf="isLoading()" class="loading-spinner">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Cargando configuraciones...</p>
+  </div>
+
+  <!-- Formularios de configuración -->
+  <div *ngIf="!isLoading()" class="config-grid">
+    <!-- Tarjeta: Turno DIURNO -->
+    <mat-card class="config-card diurno-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>wb_sunny</mat-icon>
+          Turno DIURNO
+        </mat-card-title>
+        <mat-card-subtitle>
+          Horario del turno durante el día
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <form [formGroup]="diurnoForm" class="config-form">
+          <!-- Hora de Inicio -->
+          <mat-form-field appearance="outline" class="time-field">
+            <mat-label>Hora de Inicio</mat-label>
+            <input
+              matInput
+              type="time"
+              formControlName="hora_inicio"
+              placeholder="06:00"
+              required>
+            <mat-icon matPrefix>access_time</mat-icon>
+            <mat-error *ngIf="diurnoForm.get('hora_inicio')?.hasError('required')">
+              La hora de inicio es requerida
+            </mat-error>
+            <mat-error *ngIf="diurnoForm.get('hora_inicio')?.hasError('pattern')">
+              Formato de hora inválido
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Hora de Fin -->
+          <mat-form-field appearance="outline" class="time-field">
+            <mat-label>Hora de Fin</mat-label>
+            <input
+              matInput
+              type="time"
+              formControlName="hora_fin"
+              placeholder="18:00"
+              required>
+            <mat-icon matPrefix>access_time</mat-icon>
+            <mat-error *ngIf="diurnoForm.get('hora_fin')?.hasError('required')">
+              La hora de fin es requerida
+            </mat-error>
+            <mat-error *ngIf="diurnoForm.get('hora_fin')?.hasError('pattern')">
+              Formato de hora inválido
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Descripción -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Descripción (opcional)</mat-label>
+            <textarea
+              matInput
+              formControlName="descripcion"
+              rows="3"
+              placeholder="Descripción del turno diurno"></textarea>
+            <mat-icon matPrefix>description</mat-icon>
+          </mat-form-field>
+
+          <!-- Estado Activo -->
+          <div class="checkbox-field">
+            <mat-checkbox formControlName="activo">
+              Turno activo
+            </mat-checkbox>
+          </div>
+        </form>
+
+        <!-- Resumen visual -->
+        <div class="time-summary" *ngIf="diurnoForm.value.hora_inicio && diurnoForm.value.hora_fin">
+          <mat-icon>schedule</mat-icon>
+          <span class="time-range">
+            {{ diurnoForm.value.hora_inicio }} - {{ diurnoForm.value.hora_fin }}
+          </span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Tarjeta: Turno NOCTURNO -->
+    <mat-card class="config-card nocturno-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>nights_stay</mat-icon>
+          Turno NOCTURNO
+        </mat-card-title>
+        <mat-card-subtitle>
+          Horario del turno durante la noche
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <form [formGroup]="nocturnoForm" class="config-form">
+          <!-- Hora de Inicio -->
+          <mat-form-field appearance="outline" class="time-field">
+            <mat-label>Hora de Inicio</mat-label>
+            <input
+              matInput
+              type="time"
+              formControlName="hora_inicio"
+              placeholder="18:00"
+              required>
+            <mat-icon matPrefix>access_time</mat-icon>
+            <mat-error *ngIf="nocturnoForm.get('hora_inicio')?.hasError('required')">
+              La hora de inicio es requerida
+            </mat-error>
+            <mat-error *ngIf="nocturnoForm.get('hora_inicio')?.hasError('pattern')">
+              Formato de hora inválido
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Hora de Fin -->
+          <mat-form-field appearance="outline" class="time-field">
+            <mat-label>Hora de Fin</mat-label>
+            <input
+              matInput
+              type="time"
+              formControlName="hora_fin"
+              placeholder="06:00"
+              required>
+            <mat-icon matPrefix>access_time</mat-icon>
+            <mat-error *ngIf="nocturnoForm.get('hora_fin')?.hasError('required')">
+              La hora de fin es requerida
+            </mat-error>
+            <mat-error *ngIf="nocturnoForm.get('hora_fin')?.hasError('pattern')">
+              Formato de hora inválido
+            </mat-error>
+            <mat-hint>Puede cruzar medianoche (ej: 18:00 - 06:00)</mat-hint>
+          </mat-form-field>
+
+          <!-- Descripción -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Descripción (opcional)</mat-label>
+            <textarea
+              matInput
+              formControlName="descripcion"
+              rows="3"
+              placeholder="Descripción del turno nocturno"></textarea>
+            <mat-icon matPrefix>description</mat-icon>
+          </mat-form-field>
+
+          <!-- Estado Activo -->
+          <div class="checkbox-field">
+            <mat-checkbox formControlName="activo">
+              Turno activo
+            </mat-checkbox>
+          </div>
+        </form>
+
+        <!-- Resumen visual -->
+        <div class="time-summary" *ngIf="nocturnoForm.value.hora_inicio && nocturnoForm.value.hora_fin">
+          <mat-icon>schedule</mat-icon>
+          <span class="time-range">
+            {{ nocturnoForm.value.hora_inicio }} - {{ nocturnoForm.value.hora_fin }}
+          </span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Botones de acción -->
+  <div *ngIf="!isLoading && isAdmin()" class="actions">
+    <button
+      mat-raised-button
+      (click)="resetForm()"
+      [disabled]="!hasUnsavedChanges() || isSaving">
+      <mat-icon>restore</mat-icon>
+      Restablecer
+    </button>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="saveConfiguraciones()"
+      [disabled]="diurnoForm.invalid || nocturnoForm.invalid || isSaving">
+      <mat-icon *ngIf="!isSaving">save</mat-icon>
+      <mat-spinner *ngIf="isSaving" diameter="20"></mat-spinner>
+      {{ isSaving ? 'Guardando...' : 'Guardar Cambios' }}
+    </button>
+  </div>
+
+  <!-- Mensaje para no administradores -->
+  <div *ngIf="!isLoading && !isAdmin()" class="no-permission">
+    <mat-icon>lock</mat-icon>
+    <p>No tiene permisos para modificar esta configuración</p>
+  </div>
+</div>

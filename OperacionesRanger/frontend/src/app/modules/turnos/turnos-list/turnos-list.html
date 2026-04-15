@@ -1,0 +1,322 @@
+<div class="turnos-list-container">
+  <!-- Header -->
+  <div class="header">
+    <h1>
+      <mat-icon>schedule</mat-icon>
+      Gestión de Turnos
+    </h1>
+  </div>
+
+  <!-- Search bar -->
+  <mat-card class="search-card">
+    <mat-form-field class="search-field" appearance="outline">
+      <mat-label>Buscar por guardián</mat-label>
+      <input
+        matInput
+        type="text"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="onSearchChange($event)"
+        placeholder="Buscar por nombre o cédula..."
+      />
+      <mat-icon matPrefix>search</mat-icon>
+      <button
+        mat-icon-button
+        matSuffix
+        *ngIf="searchTerm"
+        (click)="searchTerm = ''; onSearchChange('')"
+        aria-label="Limpiar búsqueda"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
+  </mat-card>
+
+  <!-- Filters panel -->
+  <mat-expansion-panel class="filters-panel" [(expanded)]="panelOpenState">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        <mat-icon>filter_list</mat-icon>
+        Filtros Avanzados
+      </mat-panel-title>
+      <mat-panel-description>
+        {{ panelOpenState ? 'Ocultar filtros' : 'Mostrar filtros' }}
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+
+    <form [formGroup]="filtrosForm" class="filters-form">
+      <div class="filters-grid">
+        <!-- Rango de fechas -->
+        <mat-form-field appearance="outline">
+          <mat-label>Fecha Inicio</mat-label>
+          <input
+            matInput
+            [matDatepicker]="pickerInicio"
+            formControlName="fecha_inicio"
+            placeholder="dd/MM/yyyy"
+          />
+          <mat-datepicker-toggle matSuffix [for]="pickerInicio"></mat-datepicker-toggle>
+          <mat-datepicker #pickerInicio></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Fecha Fin</mat-label>
+          <input
+            matInput
+            [matDatepicker]="pickerFin"
+            formControlName="fecha_fin"
+            placeholder="dd/MM/yyyy"
+          />
+          <mat-datepicker-toggle matSuffix [for]="pickerFin"></mat-datepicker-toggle>
+          <mat-datepicker #pickerFin></mat-datepicker>
+        </mat-form-field>
+
+        <!-- Tipo de turno -->
+        <mat-form-field appearance="outline">
+          <mat-label>Tipo de Turno</mat-label>
+          <mat-select formControlName="tipo_turno">
+            <mat-option value="">Todos</mat-option>
+            <mat-option value="DIURNO">DIURNO</mat-option>
+            <mat-option value="NOCTURNO">NOCTURNO</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Checkboxes -->
+        <div class="checkbox-group">
+          <mat-checkbox formControlName="es_feriado">
+            Solo Feriados
+          </mat-checkbox>
+          <mat-checkbox formControlName="procesado_nomina">
+            Solo Procesados
+          </mat-checkbox>
+        </div>
+      </div>
+
+      <!-- Filter actions -->
+      <div class="filter-actions">
+        <button mat-flat-button color="primary" (click)="aplicarFiltros()">
+          <mat-icon>search</mat-icon>
+          Aplicar Filtros
+        </button>
+        <button mat-stroked-button (click)="limpiarFiltros()">
+          <mat-icon>clear</mat-icon>
+          Limpiar Filtros
+        </button>
+      </div>
+    </form>
+  </mat-expansion-panel>
+
+  <!-- Table -->
+  <mat-card class="table-card">
+    <!-- Loading spinner -->
+    <div class="loading-overlay" *ngIf="isLoading()">
+      <mat-spinner diameter="50"></mat-spinner>
+    </div>
+
+    <!-- Table -->
+    <div class="table-container">
+      <table mat-table [dataSource]="dataSource" class="turnos-table">
+        <!-- Fecha column -->
+        <ng-container matColumnDef="fecha">
+          <th mat-header-cell *matHeaderCellDef>Fecha</th>
+          <td mat-cell *matCellDef="let turno">
+            {{ turno.fecha | date:'dd/MM/yyyy' }}
+          </td>
+        </ng-container>
+
+        <!-- Guardián column -->
+        <ng-container matColumnDef="guardian">
+          <th mat-header-cell *matHeaderCellDef>Guardián</th>
+          <td mat-cell *matCellDef="let turno">
+            <div class="guardian-info">
+              <span class="nombre">{{ turno.empleado?.nombre || 'N/A' }}</span>
+              <span class="cedula">{{ turno.empleado?.cedula || '' }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Puesto column -->
+        <ng-container matColumnDef="puesto">
+          <th mat-header-cell *matHeaderCellDef>Puesto</th>
+          <td mat-cell *matCellDef="let turno">
+            <span
+              class="puesto-info"
+              [matTooltip]="'Código: ' + (turno.puesto?.codigo || 'N/A')"
+              matTooltipPosition="above"
+            >
+              {{ turno.puesto?.nombre || 'N/A' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Horario column -->
+        <ng-container matColumnDef="horario">
+          <th mat-header-cell *matHeaderCellDef>Horario</th>
+          <td mat-cell *matCellDef="let turno">
+            <div class="horario-info">
+              <span>{{ turno.hora_entrada }}</span>
+              <mat-icon class="horario-arrow">arrow_forward</mat-icon>
+              <span>{{ turno.hora_salida }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Horas Normales column -->
+        <ng-container matColumnDef="horas_normales">
+          <th mat-header-cell *matHeaderCellDef>Horas Normales</th>
+          <td mat-cell *matCellDef="let turno">
+            {{ turno.horas_normales }} hrs
+          </td>
+        </ng-container>
+
+        <!-- Horas Extras column -->
+        <ng-container matColumnDef="horas_extras">
+          <th mat-header-cell *matHeaderCellDef>Horas Extras</th>
+          <td mat-cell *matCellDef="let turno">
+            {{ turno.horas_extras }} hrs
+          </td>
+        </ng-container>
+
+        <!-- Total Horas column -->
+        <ng-container matColumnDef="total_horas">
+          <th mat-header-cell *matHeaderCellDef>Total</th>
+          <td mat-cell *matCellDef="let turno">
+            <strong>{{ getTotalHoras(turno) }} hrs</strong>
+          </td>
+        </ng-container>
+
+        <!-- Tipo Turno column -->
+        <ng-container matColumnDef="tipo_turno">
+          <th mat-header-cell *matHeaderCellDef>Tipo</th>
+          <td mat-cell *matCellDef="let turno">
+            <mat-chip
+              [class.chip-diurno]="turno.tipo_turno === 'DIURNO'"
+              [class.chip-nocturno]="turno.tipo_turno === 'NOCTURNO'"
+            >
+              <span *ngIf="turno.tipo_turno === 'DIURNO'">🌞</span>
+              <span *ngIf="turno.tipo_turno === 'NOCTURNO'">🌙</span>
+              {{ turno.tipo_turno }}
+            </mat-chip>
+          </td>
+        </ng-container>
+
+        <!-- Feriado column -->
+        <ng-container matColumnDef="es_feriado">
+          <th mat-header-cell *matHeaderCellDef>Feriado</th>
+          <td mat-cell *matCellDef="let turno">
+            <mat-chip *ngIf="turno.es_feriado" class="chip-feriado">
+              🎉 FERIADO
+            </mat-chip>
+          </td>
+        </ng-container>
+
+        <!-- Procesado column -->
+        <ng-container matColumnDef="procesado">
+          <th mat-header-cell *matHeaderCellDef>Estado</th>
+          <td mat-cell *matCellDef="let turno">
+            <mat-chip
+              [class.chip-procesado]="turno.procesado_nomina"
+              [class.chip-pendiente]="!turno.procesado_nomina"
+            >
+              <span *ngIf="turno.procesado_nomina">✅ PROCESADO</span>
+              <span *ngIf="!turno.procesado_nomina">⏳ PENDIENTE</span>
+            </mat-chip>
+          </td>
+        </ng-container>
+
+        <!-- Acciones column -->
+        <ng-container matColumnDef="acciones">
+          <th mat-header-cell *matHeaderCellDef>Acciones</th>
+          <td mat-cell *matCellDef="let turno">
+            <div class="acciones-buttons">
+              <!-- Ver detalles (todos los roles) -->
+              <button
+                mat-icon-button
+                color="primary"
+                (click)="verDetalles(turno)"
+                matTooltip="Ver detalles"
+                aria-label="Ver detalles"
+              >
+                <mat-icon>visibility</mat-icon>
+              </button>
+
+              <!-- Editar (ADMIN, SUPERVISOR, solo no procesados) -->
+              <button
+                mat-icon-button
+                color="accent"
+                (click)="editarTurno(turno)"
+                [disabled]="!canEdit || turno.procesado_nomina"
+                [matTooltip]="
+                  turno.procesado_nomina
+                    ? 'No se puede editar un turno procesado'
+                    : 'Editar turno'
+                "
+                aria-label="Editar turno"
+              >
+                <mat-icon>edit</mat-icon>
+              </button>
+
+              <!-- Eliminar (ADMIN only, solo no procesados) -->
+              <button
+                mat-icon-button
+                color="warn"
+                (click)="eliminarTurno(turno)"
+                [disabled]="!canDelete || turno.procesado_nomina"
+                [matTooltip]="
+                  turno.procesado_nomina
+                    ? 'No se puede eliminar un turno procesado'
+                    : 'Eliminar turno'
+                "
+                aria-label="Eliminar turno"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Row definition -->
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayedColumns"
+          [class.row-disabled]="isRowDisabled(row)"
+        ></tr>
+      </table>
+
+      <!-- Empty state -->
+      <div class="empty-state" *ngIf="!isLoading() && dataSource.length === 0">
+        <mat-icon>event_busy</mat-icon>
+        <p>No se encontraron turnos con los filtros aplicados</p>
+        <button mat-stroked-button (click)="limpiarFiltros()">
+          <mat-icon>refresh</mat-icon>
+          Limpiar Filtros
+        </button>
+      </div>
+    </div>
+
+    <!-- Paginator -->
+    <mat-paginator
+      [length]="totalTurnos"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="pageSizeOptions"
+      [pageIndex]="pageIndex"
+      (page)="onPageChange($event)"
+      showFirstLastButtons
+      aria-label="Seleccionar página de turnos"
+    >
+    </mat-paginator>
+  </mat-card>
+
+  <!-- FAB button -->
+  <button
+    mat-fab
+    color="primary"
+    class="fab-button"
+    (click)="crearTurno()"
+    *ngIf="canEdit"
+    matTooltip="Crear nuevo turno"
+    aria-label="Crear nuevo turno"
+  >
+    <mat-icon>add</mat-icon>
+  </button>
+</div>

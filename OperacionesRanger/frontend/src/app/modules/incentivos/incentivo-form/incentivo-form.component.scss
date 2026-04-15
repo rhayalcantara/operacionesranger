@@ -1,0 +1,185 @@
+.dialog-icon {
+  vertical-align: middle;
+  margin-right: 8px;
+  color: #4caf50;
+}
+
+.incentivo-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px 0;
+}
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 16px 0;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #424242;
+  margin: 0 0 8px 0;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #1976d2;
+  }
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.half-width {
+  width: calc(50% - 8px);
+}
+
+// Campo de valor hora destacado
+.valor-hora-field {
+  .valor-hora-input {
+    font-weight: 600;
+    color: #4caf50;
+    font-size: 16px;
+  }
+
+  .info-icon {
+    color: #1976d2;
+    cursor: help;
+  }
+}
+
+// Helper text con icono
+.helper-text {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px;
+  background-color: #e3f2fd;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #1565c0;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #1976d2;
+    flex-shrink: 0;
+  }
+
+  span {
+    line-height: 1.5;
+
+    strong {
+      font-weight: 600;
+    }
+  }
+}
+
+// Error de ancho completo
+.full-width-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #d32f2f;
+  background-color: #ffebee;
+  padding: 12px;
+  border-radius: 4px;
+  font-size: 14px;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+// Checkbox con hint
+.checkbox-hint {
+  display: block;
+  font-size: 12px;
+  color: #757575;
+  font-weight: 400;
+  margin-top: 4px;
+}
+
+// Botones del dialog
+mat-dialog-actions {
+  padding: 16px 24px;
+  margin: 0;
+
+  button {
+    margin-left: 8px;
+
+    mat-icon {
+      margin-right: 4px;
+    }
+  }
+}
+
+.button-spinner {
+  display: inline-block;
+  margin-right: 8px;
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .half-width {
+    width: 100%;
+  }
+
+  .section-title {
+    font-size: 14px;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+// Estados del formulario
+mat-form-field {
+  &.ng-invalid.ng-touched {
+    .mat-mdc-form-field-error {
+      font-size: 12px;
+    }
+  }
+}
+
+// Dividers
+mat-divider {
+  margin: 16px 0;
+}
+
+// Mat-hint y mat-error styles
+::ng-deep {
+  .mat-mdc-form-field-hint {
+    font-size: 12px;
+  }
+
+  .mat-mdc-form-field-error {
+    font-size: 12px;
+  }
+}

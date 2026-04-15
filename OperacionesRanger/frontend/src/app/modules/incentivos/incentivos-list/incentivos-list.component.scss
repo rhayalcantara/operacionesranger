@@ -1,0 +1,419 @@
+.incentivos-container {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+// Header
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.header-left {
+  flex: 1;
+}
+
+.page-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 28px;
+  font-weight: 500;
+  color: #212121;
+  margin: 0 0 8px 0;
+
+  .title-icon {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    color: #4caf50;
+  }
+}
+
+.page-subtitle {
+  color: #757575;
+  font-size: 14px;
+  margin: 0;
+}
+
+.header-actions {
+  button {
+    mat-icon {
+      margin-right: 4px;
+    }
+  }
+}
+
+// Filtros Card
+.filters-card {
+  margin-bottom: 24px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.filters-container {
+  padding: 8px 0;
+}
+
+.filters-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #424242;
+  margin: 0 0 16px 0;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #1976d2;
+  }
+}
+
+.filters-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+
+  .filter-field {
+    flex: 1;
+    min-width: 250px;
+  }
+
+  .date-range-filter {
+    flex: 2;
+    display: flex;
+    align-items: center;
+  }
+
+  .date-range-form {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex: 1;
+
+    mat-form-field {
+      flex: 1;
+    }
+  }
+}
+
+// Autocomplete options
+.autocomplete-option {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px 0;
+
+  .option-codigo {
+    font-weight: 600;
+    color: #1976d2;
+    font-size: 13px;
+  }
+
+  .option-nombre {
+    font-size: 14px;
+    color: #212121;
+  }
+
+  .option-ubicacion {
+    font-size: 12px;
+    color: #757575;
+  }
+}
+
+// Table Card
+.table-card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  gap: 16px;
+
+  p {
+    color: #757575;
+    font-size: 14px;
+  }
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.incentivos-table {
+  width: 100%;
+  min-width: 900px;
+
+  th {
+    background-color: #f5f5f5;
+    font-weight: 600;
+    color: #424242;
+    padding: 16px 12px;
+  }
+
+  td {
+    padding: 16px 12px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  tr:hover {
+    background-color: #f9f9f9;
+  }
+}
+
+// Columna: Puesto
+.puesto-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  .puesto-nombre {
+    font-weight: 600;
+    color: #212121;
+    font-size: 14px;
+  }
+
+  .puesto-codigo {
+    font-size: 12px;
+    color: #1976d2;
+    font-weight: 500;
+  }
+
+  .puesto-jerarquia {
+    font-size: 12px;
+    color: #757575;
+  }
+}
+
+// Columna: Quincena
+.quincena-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .quincena-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: #1976d2;
+  }
+
+  span {
+    font-size: 14px;
+    color: #424242;
+  }
+}
+
+// Columna: Monto
+.monto-valor {
+  font-weight: 600;
+  color: #424242;
+  font-size: 15px;
+}
+
+// Columna: Valor Hora (destacado en verde)
+.valor-hora-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+  color: white;
+  border-radius: 16px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: help;
+  box-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 3px 6px rgba(76, 175, 80, 0.4);
+    transition: all 0.2s ease;
+  }
+}
+
+// Columna: Concepto
+.concepto-text {
+  font-size: 13px;
+  color: #616161;
+  max-width: 200px;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Columna: Activo (Chips)
+mat-chip {
+  font-size: 12px;
+  font-weight: 500;
+  min-height: 28px;
+
+  &.chip-activo {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+  }
+
+  &.chip-inactivo {
+    background-color: #ffebee;
+    color: #c62828;
+  }
+}
+
+// Columna: Acciones
+.acciones-buttons {
+  display: flex;
+  gap: 8px;
+
+  button {
+    &:hover {
+      transform: scale(1.1);
+      transition: transform 0.2s ease;
+    }
+  }
+}
+
+// Mensaje sin datos
+.no-data-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  gap: 16px;
+
+  mat-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: #bdbdbd;
+  }
+
+  p {
+    color: #757575;
+    font-size: 16px;
+    margin: 0;
+  }
+
+  button {
+    margin-top: 8px;
+
+    mat-icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+      margin-right: 4px;
+    }
+  }
+}
+
+// Paginador
+mat-paginator {
+  border-top: 1px solid #e0e0e0;
+  margin-top: 16px;
+}
+
+// Responsive Design
+@media (max-width: 1024px) {
+  .filters-row {
+    flex-direction: column;
+
+    .filter-field,
+    .date-range-filter {
+      width: 100%;
+      min-width: 100%;
+    }
+  }
+
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (max-width: 768px) {
+  .incentivos-container {
+    padding: 16px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    gap: 16px;
+
+    .header-actions {
+      width: 100%;
+
+      button {
+        width: 100%;
+      }
+    }
+  }
+
+  .page-title {
+    font-size: 22px;
+
+    .title-icon {
+      font-size: 26px;
+      width: 26px;
+      height: 26px;
+    }
+  }
+
+  .date-range-form {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .incentivos-table {
+    font-size: 12px;
+
+    th,
+    td {
+      padding: 12px 8px;
+    }
+  }
+
+  .valor-hora-badge {
+    font-size: 12px;
+    padding: 4px 8px;
+
+    mat-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+    }
+  }
+}
+
+// Animaciones
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.table-card,
+.filters-card {
+  animation: fadeIn 0.3s ease-out;
+}

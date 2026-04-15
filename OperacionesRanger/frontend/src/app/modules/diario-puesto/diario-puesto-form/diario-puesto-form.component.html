@@ -1,0 +1,169 @@
+<h2 mat-dialog-title>{{ isEditMode ? 'Editar Registro de Diario' : 'Nuevo Registro de Diario' }}</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="diarioForm" class="diario-form">
+    <!-- Selector Jerarquico: Cliente -> Ubicacion -> Puesto -->
+    <div class="section-header">
+      <mat-icon>location_city</mat-icon>
+      <h3>Puesto de Servicio</h3>
+    </div>
+
+    <div class="form-row">
+      <!-- Selector de Cliente -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Cliente *</mat-label>
+        <mat-select formControlName="cliente_id_selector">
+          <mat-option *ngFor="let cliente of clientes" [value]="cliente.id">
+            {{ cliente.nombre }}
+          </mat-option>
+        </mat-select>
+        <mat-icon matPrefix>business</mat-icon>
+        <mat-error *ngIf="diarioForm.get('cliente_id_selector')?.hasError('required')">
+          Debe seleccionar un cliente
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Selector de Ubicacion -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Ubicacion *</mat-label>
+        <mat-select
+          formControlName="ubicacion_id_selector"
+          [disabled]="!diarioForm.get('cliente_id_selector')?.value || ubicacionesDisponibles.length === 0">
+          <mat-option *ngFor="let ubicacion of ubicacionesDisponibles" [value]="ubicacion.id">
+            {{ ubicacion.nombre }}
+          </mat-option>
+        </mat-select>
+        <mat-icon matPrefix>location_on</mat-icon>
+        <mat-hint *ngIf="!diarioForm.get('cliente_id_selector')?.value">
+          Primero seleccione un cliente
+        </mat-hint>
+        <mat-error *ngIf="diarioForm.get('ubicacion_id_selector')?.hasError('required')">
+          Debe seleccionar una ubicacion
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Selector de Puesto -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Puesto *</mat-label>
+        <mat-select
+          formControlName="puesto_id"
+          [disabled]="!diarioForm.get('ubicacion_id_selector')?.value || puestosDisponibles.length === 0">
+          <mat-option *ngFor="let puesto of puestosDisponibles" [value]="puesto.id">
+            {{ puesto.codigo }} - {{ puesto.nombre }}
+          </mat-option>
+        </mat-select>
+        <mat-icon matPrefix>work</mat-icon>
+        <mat-hint *ngIf="!diarioForm.get('ubicacion_id_selector')?.value">
+          Primero seleccione una ubicacion
+        </mat-hint>
+        <mat-error *ngIf="diarioForm.get('puesto_id')?.hasError('required')">
+          Debe seleccionar un puesto
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- Empleado y Detalles del Turno -->
+    <div class="section-header">
+      <mat-icon>person</mat-icon>
+      <h3>Empleado y Turno</h3>
+    </div>
+
+    <div class="form-row">
+      <!-- Autocomplete de Empleado -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Empleado *</mat-label>
+        <input
+          matInput
+          [formControl]="empleadoSearchControl"
+          [matAutocomplete]="empleadoAuto"
+          placeholder="Buscar empleado...">
+        <mat-icon matPrefix>person_search</mat-icon>
+        <button
+          mat-icon-button
+          matSuffix
+          *ngIf="empleadoSearchControl.value"
+          (click)="limpiarEmpleado()"
+          matTooltip="Limpiar seleccion">
+          <mat-icon>clear</mat-icon>
+        </button>
+        <mat-autocomplete
+          #empleadoAuto="matAutocomplete"
+          [displayWith]="displayGuardian"
+          (optionSelected)="onEmpleadoSelected($event.option.value)">
+          <mat-option *ngFor="let guardian of empleadoOptions" [value]="guardian">
+            <div class="guardian-option">
+              <span class="guardian-nombre">{{ guardian.nombres }} {{ guardian.apellidos }}</span>
+              <span class="guardian-cedula">{{ guardian.cedula_empleado }}</span>
+            </div>
+          </mat-option>
+        </mat-autocomplete>
+        <mat-hint>Escriba para buscar por nombre o cedula</mat-hint>
+        <mat-error *ngIf="diarioForm.get('empleado_id')?.hasError('required')">
+          Debe seleccionar un empleado
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <!-- Fecha -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Fecha *</mat-label>
+        <input matInput [matDatepicker]="fechaPicker" formControlName="fecha">
+        <mat-datepicker-toggle matSuffix [for]="fechaPicker"></mat-datepicker-toggle>
+        <mat-datepicker #fechaPicker></mat-datepicker>
+        <mat-icon matPrefix>today</mat-icon>
+        <mat-error *ngIf="diarioForm.get('fecha')?.hasError('required')">
+          Debe seleccionar una fecha
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Horas -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Horas *</mat-label>
+        <input matInput type="number" formControlName="horas" min="0" max="24" step="0.5">
+        <mat-icon matPrefix>schedule</mat-icon>
+        <mat-error *ngIf="diarioForm.get('horas')?.hasError('required')">
+          Las horas son requeridas
+        </mat-error>
+        <mat-error *ngIf="diarioForm.get('horas')?.hasError('min')">
+          Las horas deben ser mayor o igual a 0
+        </mat-error>
+        <mat-error *ngIf="diarioForm.get('horas')?.hasError('max')">
+          Las horas no pueden exceder 24
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Tipo de Turno -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Tipo de Turno *</mat-label>
+        <mat-select formControlName="tipo_turno">
+          <mat-option value="DIURNO">Diurno</mat-option>
+          <mat-option value="NOCTURNO">Nocturno</mat-option>
+        </mat-select>
+        <mat-icon matPrefix>wb_sunny</mat-icon>
+        <mat-error *ngIf="diarioForm.get('tipo_turno')?.hasError('required')">
+          Debe seleccionar un tipo de turno
+        </mat-error>
+      </mat-form-field>
+    </div>
+  </form>
+
+  <!-- Loading overlay -->
+  <div *ngIf="isLoading" class="loading-overlay">
+    <mat-spinner></mat-spinner>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()" [disabled]="isLoading">
+    Cancelar
+  </button>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="onSubmit()"
+    [disabled]="diarioForm.invalid || isLoading">
+    <mat-icon>save</mat-icon>
+    {{ isEditMode ? 'Actualizar' : 'Crear' }}
+  </button>
+</mat-dialog-actions>

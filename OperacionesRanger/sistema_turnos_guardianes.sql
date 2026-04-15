@@ -1,6 +1,6 @@
 -- ============================================================================
 -- SISTEMA DE GESTIÓN DE TURNOS - GUARDIANES DE SEGURIDAD
--- COOPASPIRE - República Dominicana
+-- Guardianes Ranger - República Dominicana
 -- ============================================================================
 -- Autor: Rhay / Claude
 -- Fecha: Enero 2026

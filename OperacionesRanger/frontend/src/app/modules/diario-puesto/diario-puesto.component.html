@@ -1,0 +1,166 @@
+<div class="diario-puesto-container">
+  <div class="header">
+    <h1>Diario de Puesto</h1>
+    <div class="header-actions">
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="poblarDesdeServicios()"
+        [disabled]="!fechaSeleccionada || isLoading()"
+        matTooltip="Poblar registros desde los servicios por puesto activos">
+        <mat-icon>group_add</mat-icon>
+        Poblar desde Servicios
+      </button>
+      <button
+        mat-raised-button
+        color="accent"
+        (click)="abrirPoblarPlantilla()"
+        [disabled]="!fechaSeleccionada"
+        matTooltip="Poblar registros desde una plantilla de servicio">
+        <mat-icon>file_copy</mat-icon>
+        Poblar desde Plantilla
+      </button>
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="abrirFormularioCrear()"
+        [disabled]="!fechaSeleccionada">
+        <mat-icon>add</mat-icon>
+        Nuevo Registro
+      </button>
+    </div>
+  </div>
+
+  <!-- Selector de Fecha -->
+  <mat-card class="filters-card">
+    <mat-card-content>
+      <div class="filters-row">
+        <mat-form-field appearance="outline" class="filter-field date-field">
+          <mat-label>Fecha</mat-label>
+          <input matInput [matDatepicker]="picker" [formControl]="fechaControl" placeholder="Seleccione una fecha">
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+          <mat-icon matPrefix>today</mat-icon>
+        </mat-form-field>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Mensaje cuando no hay fecha seleccionada -->
+  <mat-card class="table-card" *ngIf="!fechaSeleccionada">
+    <mat-card-content>
+      <div class="empty-state">
+        <mat-icon>date_range</mat-icon>
+        <p>Seleccione una fecha para ver los registros del diario de puesto</p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Tabla de Diario de Puesto -->
+  <mat-card class="table-card" *ngIf="fechaSeleccionada">
+    <mat-card-content>
+      <div class="table-container">
+        <div *ngIf="isLoading()" class="loading-overlay">
+          <mat-spinner></mat-spinner>
+        </div>
+
+        <div class="table-scroll-wrapper">
+          <table mat-table [dataSource]="dataSource" class="diario-table" *ngIf="!isLoading()">
+            <!-- Puesto Column -->
+            <ng-container matColumnDef="puesto">
+              <th mat-header-cell *matHeaderCellDef>Puesto</th>
+              <td mat-cell *matCellDef="let registro">
+                <div class="puesto-info">
+                  <span class="puesto-codigo">{{ registro.puesto_codigo }}</span>
+                  <span class="puesto-nombre">{{ registro.puesto_nombre }}</span>
+                  <span class="puesto-ubicacion">{{ registro.ubicacion_nombre }} - {{ registro.cliente_nombre }}</span>
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Empleado Column -->
+            <ng-container matColumnDef="empleado">
+              <th mat-header-cell *matHeaderCellDef>Empleado</th>
+              <td mat-cell *matCellDef="let registro">
+                <div class="empleado-info">
+                  <span class="empleado-nombre">{{ registro.empleado_nombre }}</span>
+                  <span class="empleado-cedula">{{ registro.empleado_cedula }}</span>
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Horas Column -->
+            <ng-container matColumnDef="horas">
+              <th mat-header-cell *matHeaderCellDef>Horas</th>
+              <td mat-cell *matCellDef="let registro">
+                <span class="horas-valor">{{ registro.horas }}h</span>
+              </td>
+            </ng-container>
+
+            <!-- Tipo Turno Column -->
+            <ng-container matColumnDef="tipo_turno">
+              <th mat-header-cell *matHeaderCellDef>Turno</th>
+              <td mat-cell *matCellDef="let registro">
+                <mat-chip-set>
+                  <mat-chip [class.chip-diurno]="registro.tipo_turno === 'DIURNO'"
+                            [class.chip-nocturno]="registro.tipo_turno === 'NOCTURNO'">
+                    {{ registro.tipo_turno }}
+                  </mat-chip>
+                </mat-chip-set>
+              </td>
+            </ng-container>
+
+            <!-- Origen Column -->
+            <ng-container matColumnDef="origen">
+              <th mat-header-cell *matHeaderCellDef>Origen</th>
+              <td mat-cell *matCellDef="let registro">
+                <mat-chip-set>
+                  <mat-chip [class.chip-manual]="registro.origen === 'MANUAL'"
+                            [class.chip-plantilla]="registro.origen === 'PLANTILLA'">
+                    {{ registro.origen === 'MANUAL' ? 'Manual' : 'Plantilla' }}
+                  </mat-chip>
+                </mat-chip-set>
+              </td>
+            </ng-container>
+
+            <!-- Acciones Column -->
+            <ng-container matColumnDef="acciones">
+              <th mat-header-cell *matHeaderCellDef>Acciones</th>
+              <td mat-cell *matCellDef="let registro">
+                <button mat-icon-button color="primary" (click)="abrirFormularioEditar(registro)" matTooltip="Editar">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button color="warn" (click)="eliminarRegistro(registro)" matTooltip="Eliminar">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+            <!-- Empty state -->
+            <tr class="mat-row" *matNoDataRow>
+              <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+                <div class="empty-state">
+                  <mat-icon>inbox</mat-icon>
+                  <p>No se encontraron registros para esta fecha</p>
+                </div>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <!-- Paginador -->
+        <mat-paginator
+          [length]="totalRegistros"
+          [pageSize]="pageSize"
+          [pageSizeOptions]="[5, 10, 25, 50]"
+          [pageIndex]="pageIndex"
+          (page)="onPageChange($event)"
+          showFirstLastButtons>
+        </mat-paginator>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

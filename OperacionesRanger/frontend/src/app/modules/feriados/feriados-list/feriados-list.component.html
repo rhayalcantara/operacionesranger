@@ -1,0 +1,182 @@
+<div class="feriados-container">
+  <!-- Header -->
+  <div class="header">
+    <h1>
+      <mat-icon>event</mat-icon>
+      Gestión de Feriados
+    </h1>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="openCreateDialog()">
+      <mat-icon>add</mat-icon>
+      Nuevo Feriado
+    </button>
+  </div>
+
+  <!-- Vista de dos columnas -->
+  <div class="content-grid">
+    <!-- Columna izquierda: Calendario -->
+    <mat-card class="calendar-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>calendar_month</mat-icon>
+          Calendario de Feriados
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <!-- Selector de año -->
+        <mat-form-field appearance="outline" class="year-selector">
+          <mat-label>Año</mat-label>
+          <mat-select [(ngModel)]="anioSeleccionado" (selectionChange)="onAnioChange()">
+            <mat-option *ngFor="let anio of aniosDisponibles" [value]="anio">
+              {{ anio }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Calendario -->
+        <mat-calendar
+          [(selected)]="selectedDate"
+          [dateClass]="dateClass"
+          (selectedChange)="onDateSelected($event)"
+          (monthSelected)="onMonthSelected($event)">
+        </mat-calendar>
+
+        <!-- Leyenda -->
+        <div class="calendar-legend">
+          <div class="legend-item">
+            <span class="legend-color nacional"></span>
+            <span>Nacional</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-color decreto"></span>
+            <span>Decreto</span>
+          </div>
+        </div>
+
+        <mat-hint class="calendar-hint">
+          <mat-icon>info</mat-icon>
+          Haga clic en una fecha para crear o editar un feriado
+        </mat-hint>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Columna derecha: Tabla -->
+    <mat-card class="table-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>list</mat-icon>
+          Lista de Feriados
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <!-- Filtros -->
+        <div class="filters">
+          <mat-form-field appearance="outline">
+            <mat-label>Tipo</mat-label>
+            <mat-select [(ngModel)]="tipoSeleccionado" (selectionChange)="onTipoChange()">
+              <mat-option *ngFor="let tipo of tiposOptions" [value]="tipo.value">
+                {{ tipo.label }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <!-- Spinner de carga -->
+        <div *ngIf="isLoading()" class="loading-spinner">
+          <mat-spinner diameter="50"></mat-spinner>
+        </div>
+
+        <!-- Tabla -->
+        <div class="table-container" *ngIf="!isLoading()">
+          <table mat-table [dataSource]="dataSource" class="feriados-table">
+            <!-- Columna: Fecha -->
+            <ng-container matColumnDef="fecha">
+              <th mat-header-cell *matHeaderCellDef>Fecha</th>
+              <td mat-cell *matCellDef="let feriado">
+                {{ formatFecha(feriado.fecha) }}
+              </td>
+            </ng-container>
+
+            <!-- Columna: Nombre -->
+            <ng-container matColumnDef="nombre">
+              <th mat-header-cell *matHeaderCellDef>Nombre</th>
+              <td mat-cell *matCellDef="let feriado">
+                <strong>{{ feriado.nombre }}</strong>
+              </td>
+            </ng-container>
+
+            <!-- Columna: Tipo -->
+            <ng-container matColumnDef="tipo">
+              <th mat-header-cell *matHeaderCellDef>Tipo</th>
+              <td mat-cell *matCellDef="let feriado">
+                <mat-chip [class]="getTipoChipClass(feriado.tipo)">
+                  {{ feriado.tipo }}
+                </mat-chip>
+              </td>
+            </ng-container>
+
+            <!-- Columna: Descripción -->
+            <ng-container matColumnDef="descripcion">
+              <th mat-header-cell *matHeaderCellDef>Descripción</th>
+              <td mat-cell *matCellDef="let feriado">
+                <span
+                  *ngIf="feriado.descripcion"
+                  [matTooltip]="feriado.descripcion"
+                  class="descripcion-truncada">
+                  {{ feriado.descripcion }}
+                </span>
+                <span *ngIf="!feriado.descripcion" class="text-muted">-</span>
+              </td>
+            </ng-container>
+
+            <!-- Columna: Acciones -->
+            <ng-container matColumnDef="acciones">
+              <th mat-header-cell *matHeaderCellDef>Acciones</th>
+              <td mat-cell *matCellDef="let feriado">
+                <button
+                  mat-icon-button
+                  color="primary"
+                  (click)="openEditDialog(feriado)"
+                  matTooltip="Editar">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button
+                  mat-icon-button
+                  color="warn"
+                  (click)="deleteFeriado(feriado)"
+                  matTooltip="Eliminar">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+            <!-- Fila cuando no hay datos -->
+            <tr class="mat-row" *matNoDataRow>
+              <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+                <div class="no-data">
+                  <mat-icon>event_busy</mat-icon>
+                  <p>No se encontraron feriados</p>
+                </div>
+              </td>
+            </tr>
+          </table>
+
+          <!-- Paginador -->
+          <mat-paginator
+            [length]="totalFeriados"
+            [pageSize]="pageSize"
+            [pageIndex]="pageIndex"
+            [pageSizeOptions]="[5, 10, 25, 50]"
+            (page)="onPageChange($event)"
+            showFirstLastButtons>
+          </mat-paginator>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

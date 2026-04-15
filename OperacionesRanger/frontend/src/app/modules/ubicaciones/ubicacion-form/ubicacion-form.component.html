@@ -1,0 +1,101 @@
+<h2 mat-dialog-title>{{ isEditMode ? 'Editar Ubicación' : 'Nueva Ubicación' }}</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="ubicacionForm" class="ubicacion-form">
+
+    <!-- Cliente (requerido) -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Cliente</mat-label>
+      <mat-select formControlName="cliente_id" required>
+        <mat-option *ngFor="let cliente of clientes" [value]="cliente.id">
+          {{ cliente.codigo }} - {{ cliente.nombre }}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="ubicacionForm.get('cliente_id')?.hasError('required')">
+        {{ getErrorMessage('cliente_id') }}
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Código (opcional, auto-generado) -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Código</mat-label>
+      <input matInput formControlName="codigo" placeholder="Ej: UB001 (opcional)">
+      <mat-hint>Dejar vacío para auto-generar</mat-hint>
+      <mat-error *ngIf="ubicacionForm.get('codigo')?.invalid">
+        {{ getErrorMessage('codigo') }}
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Nombre (requerido) -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Nombre</mat-label>
+      <input matInput formControlName="nombre" placeholder="Nombre de la ubicación" required>
+      <mat-error *ngIf="ubicacionForm.get('nombre')?.invalid">
+        {{ getErrorMessage('nombre') }}
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Dirección -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Dirección</mat-label>
+      <textarea matInput formControlName="direccion" placeholder="Dirección completa" rows="2"></textarea>
+      <mat-error *ngIf="ubicacionForm.get('direccion')?.invalid">
+        {{ getErrorMessage('direccion') }}
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Provincia (selector en cascada) -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Provincia</mat-label>
+      <mat-select formControlName="provincia">
+        <mat-option [value]="null">-- Seleccione --</mat-option>
+        <mat-option *ngFor="let provincia of provincias" [value]="provincia.value">
+          {{ provincia.label }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <!-- Municipio (dependiente de provincia) -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Municipio</mat-label>
+      <mat-select formControlName="municipio" [disabled]="!municipiosDisponibles.length">
+        <mat-option [value]="null">-- Seleccione --</mat-option>
+        <mat-option *ngFor="let municipio of municipiosDisponibles" [value]="municipio">
+          {{ municipio }}
+        </mat-option>
+      </mat-select>
+      <mat-hint *ngIf="!municipiosDisponibles.length">Seleccione una provincia primero</mat-hint>
+    </mat-form-field>
+
+    <!-- Coordenadas GPS -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Coordenadas GPS</mat-label>
+      <input matInput formControlName="coordenadas_gps" placeholder="Ej: 18.4861,-69.9312">
+      <mat-hint>Formato: latitud,longitud</mat-hint>
+      <mat-error *ngIf="ubicacionForm.get('coordenadas_gps')?.invalid">
+        {{ getErrorMessage('coordenadas_gps') }}
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Activo -->
+    <div class="checkbox-container">
+      <mat-checkbox formControlName="activo">Activo</mat-checkbox>
+    </div>
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()" [disabled]="isLoading" class="cancel-button">
+    Cancelar
+  </button>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="onSubmit()"
+    [disabled]="isLoading || ubicacionForm.invalid"
+    class="save-button">
+    <mat-spinner *ngIf="isLoading" diameter="20" class="inline-spinner"></mat-spinner>
+    <span *ngIf="!isLoading">{{ isEditMode ? 'Actualizar' : 'Crear' }}</span>
+  </button>
+</mat-dialog-actions>

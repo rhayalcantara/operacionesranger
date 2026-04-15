@@ -4,18 +4,45 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**OperacionesRanger - Sistema de Gestión de Turnos** is a shift management system for security guards (guardianes de seguridad) for COOPASPIRE in the Dominican Republic. The system tracks daily shifts, calculates work hours (normal/overtime, day/night), identifies holidays, and generates biweekly reports for payroll integration.
+**OperacionesRanger - Sistema de Gestión de Turnos** is a shift management system for security guards (guardianes de seguridad) for Guardianes Ranger in the Dominican Republic. The system tracks daily shifts, calculates work hours (normal/overtime, day/night), identifies holidays, and generates biweekly reports for payroll integration.
 
-**Current Status**: Project in early development phase - database schema designed, architecture defined, awaiting backend and frontend implementation.
+**Current Status**: Phase 3 Frontend Base COMPLETED (100% complete, 17/17 tasks). Full Angular frontend with authentication, master data CRUDs, shift management, and CSV reporting. Backend also 100% complete (28/28 tasks).
 
-**Planned Architecture**:
-- **Backend**: Node.js + TypeScript + Express.js
-- **Frontend**: Angular
-- **Database**: MySQL 8.0 (schema: `sistema_turnos_guardianes.sql`)
+**Technology Stack**:
+- **Backend**: Node.js 16+ + TypeScript 5.3 + Express.js 4.18 (COMPLETED)
+- **Frontend**: Angular 21 + Angular Material (COMPLETED)
+- **Database**: MySQL 8.0 (schema deployed and operational)
+- **Testing**: Jest + Supertest (~95% coverage on core services)
 
-## Database Setup
+## Development Commands
 
-### Initial Setup Commands
+### Backend (`backend/`)
+
+```bash
+# Start development server
+npm run dev                    # Runs on port 3000 (or PORT from .env)
+
+# Build TypeScript to JavaScript
+npm run build                  # Compiles to dist/
+
+# Run tests
+npm test                       # Jest test suite
+npm run test:watch             # Jest in watch mode
+npm run test:coverage          # Generate coverage report
+
+# Database utilities
+npm run db:test                # Test database connections
+npm run db:init                # Initialize database from Node.js
+npm run db:seed                # Load holiday data (accepts year)
+npm run db:examples            # Run example queries
+npm run db:reset               # Reset test data (dev only)
+
+# Code quality
+npm run lint                   # ESLint check
+npm run format                 # Prettier format
+```
+
+### Database Setup Commands
 
 ```bash
 # Connect to MySQL (Windows)
@@ -175,15 +202,43 @@ OperacionesRanger/
 
 **Decision**: Node.js + TypeScript + Express.js
 **Date**: 2026-01-17
-**Status**: Accepted
+**Status**: Implemented
 **File**: `docs/decisions/001_eleccion_stack_backend.md`
 
 **Rationale**:
 - Team expertise in JavaScript ecosystem
 - Fast development cycle
-- Excellent MySQL integration (mysql2, Sequelize)
-- Strong typing with TypeScript
+- Excellent MySQL integration (mysql2)
+- Strong typing with TypeScript (strict mode enabled)
 - Lightweight and performant for CRUD operations
+
+**Current Implementation**:
+- TypeScript 5.3 with strict mode and path aliases
+- Express.js 4.18 with async/await support
+- Connection pooling (mysql2) for both databases
+- Jest + Supertest for testing
+- ESLint + Prettier for code quality
+
+### ADR-002: Authentication Strategy
+
+**Decision**: JWT (JSON Web Tokens) with Refresh Tokens
+**Date**: 2026-01-17
+**Status**: Implemented
+**File**: `docs/decisions/002_estrategia_autenticacion.md`
+
+**Rationale**:
+- Stateless authentication (scalable)
+- Short-lived access tokens (15min) for security
+- Long-lived refresh tokens (7 days) for UX
+- bcrypt for password hashing (10 rounds)
+- Role-based access control (ADMIN, SUPERVISOR, CONSULTA)
+
+**Current Implementation**:
+- JWT access tokens: 15 minutes expiration
+- Refresh tokens: 7 days expiration, stored in DB
+- Password hashing: bcryptjs with 10 rounds
+- Middleware: authMiddleware + roleMiddleware
+- Audit trail: sys_auditoria_auth table
 
 ### Database Schema Decisions
 
@@ -216,41 +271,177 @@ Total hours: <= 16
 - **Constraint**: `uk_empleado_puesto_fecha (empleado_id, puesto_id, fecha)`
 - **Effect**: Cannot register same employee at same post on same date twice
 
-## MySQL Configuration
+## Backend Architecture
+
+### Project Structure
+
+```
+backend/
+├── src/
+│   ├── config/           # Database, environment, validation
+│   │   ├── database.ts   # Dual DB connection pools
+│   │   └── env.ts        # Environment validation (Zod)
+│   ├── controllers/      # Request handlers
+│   │   ├── auth.controller.ts
+│   │   └── usuarios.controller.ts
+│   ├── models/           # TypeScript interfaces
+│   │   └── auth.model.ts
+│   ├── services/         # Business logic
+│   │   ├── auth.service.ts
+│   │   ├── password.service.ts
+│   │   └── jwt.service.ts
+│   ├── routes/           # API route definitions
+│   │   ├── auth.routes.ts
+│   │   └── usuarios.routes.ts
+│   ├── middlewares/      # Express middlewares
+│   │   ├── auth.middleware.ts
+│   │   ├── role.middleware.ts
+│   │   ├── error.middleware.ts
+│   │   └── validation.middleware.ts
+│   ├── utils/            # Utilities and helpers
+│   ├── types/            # Global TypeScript types
+│   │   └── express.d.ts  # Express Request extension
+│   └── server.ts         # Application entry point
+├── tests/                # Jest unit/integration tests
+├── scripts/              # DB utilities (init, seed, etc.)
+├── database/             # SQL migrations and schemas
+├── .env.example          # Environment variables template
+├── tsconfig.json         # TypeScript config (strict mode)
+└── package.json          # Dependencies and scripts
+```
+
+### Key Patterns
+
+**Dual Database Strategy**:
+- **Primary DB** (`turnos_guardianes`): Read/write for shift data
+- **Secondary DB** (`db_aae4a2_ranger`): Read-only for HR employee data
+- Connection pooling: 10 connections (primary), 5 connections (secondary)
+
+**Authentication Flow**:
+1. User sends credentials to `POST /api/auth/login`
+2. AuthService validates against `sys_usuarios` table
+3. PasswordService verifies hash with bcrypt
+4. JWTService generates access token (15min) + refresh token (7 days)
+5. Refresh token stored in `sys_refresh_tokens` table
+6. Audit log created in `sys_auditoria_auth`
+
+**Authorization Pattern**:
+```typescript
+router.get('/usuarios',
+  authMiddleware,           // Verify JWT token
+  requireRole('ADMIN'),     // Check user role
+  getUsuarios               // Controller handler
+);
+```
+
+**Error Handling**:
+- Global error middleware catches all errors
+- Custom error classes for different HTTP codes
+- Validation errors via Zod schemas
+- Database errors logged and sanitized
+
+### MySQL Configuration
 
 **Connection Details** (for development):
 - Host: `localhost`
 - Port: `3306` (default)
-- Database: `turnos_guardianes`
+- Database: `turnos_guardianes` (primary), `db_aae4a2_ranger` (HR)
 - User: `root` (development only)
 - Password: Stored in environment variables (`.env`)
 
+**Connection Pooling**:
+```typescript
+// Primary DB (turnos_guardianes)
+connectionLimit: 10
+waitForConnections: true
+queueLimit: 0
+
+// Secondary DB (RRHH)
+connectionLimit: 5
+waitForConnections: true
+queueLimit: 0
+```
+
 **IMPORTANT**: Production credentials MUST be stored in environment variables, never in code.
 
-## Next Development Phases
+## Development Phases Status
 
-### Phase 1: Foundation (Current)
-- [x] Database schema design
-- [x] Architecture decisions
-- [x] HR table investigation
-- [ ] Load initial data (holidays, shift configuration)
-- [ ] Validate stored procedures
-- [ ] Backend project structure setup
-- [ ] Database connection configuration
+### Phase 1: Foundation (COMPLETED ✅)
+**Completion**: 2026-01-17 (11/11 tasks, 28h 40min)
+- [✓] Database schema design and deployment
+- [✓] Architecture decisions (ADR-001, ADR-002)
+- [✓] HR table investigation (515 active guards identified)
+- [✓] Load initial data (12 national holidays 2026)
+- [✓] Validate stored procedures (28 test cases)
+- [✓] Backend project structure setup
+- [✓] Database connection configuration (dual DB strategy)
+- [✓] Environment variables and validation
+- [✓] Utility scripts (db:init, db:seed, db:test, etc.)
+- [✓] Documentation (README.md 2,655 lines)
+- [✓] Methodology with parallelization (v2.0)
 
-### Phase 2: Backend Core
-- [ ] API endpoints for master data (clients, locations, posts)
-- [ ] Shift registration endpoint (calls `sp_registrar_turno`)
-- [ ] Payroll report generation endpoint
-- [ ] Authentication system
-- [ ] Integration with HR employee table
+### Phase 2: Backend Core (COMPLETED ✅)
+**Progress**: 100% (28/28 tasks, 95h 10min total)
+**Completion Date**: 2026-01-19
 
-### Phase 3: Frontend
-- [ ] Client/location/post management modules
-- [ ] Shift calendar/agenda component
-- [ ] Shift registration form
-- [ ] Incentives management module
-- [ ] Report generation and CSV export
+**All Modules Completed**:
+- [✓] Module 1: Authentication (6/6 tasks)
+  - [✓] Authentication models and schemas (TypeScript + SQL)
+  - [✓] Password hashing service (bcryptjs, 22 tests)
+  - [✓] JWT service (access + refresh tokens, 29 tests)
+  - [✓] Auth endpoints (login, logout, refresh, change-password)
+  - [✓] Auth middleware (authMiddleware + roleMiddleware, 39 tests)
+  - [✓] Users CRUD (6 endpoints, ADMIN only, 25+ tests)
+
+- [✓] Module 2: Master Data CRUDs (9/9 tasks)
+  - [✓] Clients CRUD (T2.07)
+  - [✓] Locations CRUD (T2.08)
+  - [✓] Posts CRUD (T2.09)
+  - [✓] Holidays CRUD (T2.10)
+  - [✓] Shift configuration CRUD (T2.11)
+  - [✓] Post incentives CRUD (T2.12)
+  - [✓] Data validation rules (T2.13)
+  - [✓] Logging and audit (T2.14)
+  - [✓] Seed data for master tables (T2.15)
+
+- [✓] Module 3: HR Integration (2/2 tasks)
+  - [✓] RRHH service for employees (T2.16)
+  - [✓] Cache system for active guards (T2.17)
+
+- [✓] Module 4: Shifts Management (5/5 tasks)
+  - [✓] Shift model and validations (T2.18)
+  - [✓] Register shift endpoint (T2.19)
+  - [✓] Query shifts endpoints (T2.20)
+  - [✓] Update/delete shifts endpoints (T2.21)
+  - [✓] Calendar view endpoint (T2.22)
+
+- [✓] Module 5: Reports and CSV Export (4/4 tasks)
+  - [✓] CSV payroll report generation (T2.23)
+  - [✓] Mark shifts as processed (T2.24)
+  - [✓] Report history (T2.25)
+  - [✓] Summary reports (T2.26)
+
+- [✓] Module 6: Testing and Documentation (2/2 tasks)
+  - [✓] Swagger/OpenAPI documentation (T2.27)
+  - [✓] Complete integration test suite (T2.28)
+
+### Phase 3: Frontend Base (COMPLETED ✅)
+**Progress**: 100% (17/17 tasks, ~53h 15min total)
+**Completion Date**: 2026-04-04
+
+**All Modules Completed**:
+- [✓] Angular 21 project setup with Material Design (T3.01)
+- [✓] Authentication system: AuthGuard, RoleGuard, AuthInterceptor (T3.02)
+- [✓] Layout: Sidebar navigation, header, responsive design (T3.03)
+- [✓] Dashboard with statistics (T3.04)
+- [✓] Master data CRUDs: Clientes (T3.05), Ubicaciones (T3.06), Puestos (T3.07), Feriados (T3.08), Usuarios (T3.09), Incentivos (T3.10)
+- [✓] Shift configuration module (T3.11)
+- [✓] Shift registration form with cascading selectors (T3.12)
+- [✓] Shift list with filters and pagination (T3.13)
+- [✓] Employee shift summary with statistics (T3.14)
+- [✓] Payroll CSV report generation (T3.15)
+- [✓] Password change component (T3.16)
+- [✓] Login component (T3.17)
 
 ### Phase 4: Integration & Testing
 - [ ] Connect to HR employee table
@@ -332,10 +523,151 @@ CALL sp_verificar_feriado('2026-01-01');
 - Always validate employee exists and is active before creating shifts
 - Ensure `empleado_id` references match between systems
 
+## Testing
+
+The project uses **Jest** with **Supertest** for testing.
+
+### Test Structure
+
+```
+tests/
+├── services/
+│   ├── password.service.test.ts    # 22 tests (100% coverage)
+│   └── jwt.service.test.ts         # 29 tests (100% coverage)
+├── middlewares/
+│   ├── auth.middleware.test.ts     # 20 tests (100% coverage)
+│   └── role.middleware.test.ts     # 19 tests (100% coverage)
+└── integration/
+    ├── auth.routes.test.ts         # 12/14 tests passing
+    └── usuarios.routes.test.ts     # 25+ tests
+```
+
+### Running Tests
+
+```bash
+# Run all tests
+npm test
+
+# Watch mode (auto-rerun on changes)
+npm run test:watch
+
+# Coverage report
+npm run test:coverage
+
+# Run specific test file
+npm run test:password
+npm run test:jwt
+```
+
+### Test Coverage
+
+**Current Overall Coverage**: ~95% on core services
+- **PasswordService**: 100% (22/22 tests)
+- **JWTService**: 100% (29/29 tests)
+- **Auth Middleware**: 100% (39/39 tests)
+- **Auth Endpoints**: 85.7% (12/14 tests, 2 non-critical issues)
+
+### Testing Best Practices
+
+- All services have unit tests before integration
+- Mock database connections in unit tests
+- Use Supertest for API endpoint testing
+- Test both success and error paths
+- Validate TypeScript types in tests
+- Maintain >80% coverage on critical paths
+
+## Common Development Workflows
+
+### Adding a New CRUD Endpoint
+
+1. **Create Model Interface** (`src/models/*.model.ts`)
+   ```typescript
+   export interface Cliente {
+     id: number;
+     nombre: string;
+     // ... other fields
+   }
+   ```
+
+2. **Create Service** (`src/services/*.service.ts`)
+   - Implement business logic
+   - Use database connection from `config/database.ts`
+   - Write unit tests
+
+3. **Create Controller** (`src/controllers/*.controller.ts`)
+   - Handle HTTP requests/responses
+   - Call service methods
+   - Return appropriate status codes
+
+4. **Create Routes** (`src/routes/*.routes.ts`)
+   ```typescript
+   router.get('/', authMiddleware, requireRole('ADMIN'), getAll);
+   router.post('/', authMiddleware, requireRole('ADMIN'), create);
+   ```
+
+5. **Add Validation Middleware** (if needed)
+   - Use Zod schemas for input validation
+
+6. **Write Integration Tests** (`tests/integration/*.test.ts`)
+   - Test all endpoints with Supertest
+   - Verify authentication/authorization
+   - Test error cases
+
+### Working with Database
+
+**Using Stored Procedures**:
+```typescript
+const [rows] = await turnosPool.query(
+  'CALL sp_registrar_turno(?, ?, ?, ?, ?, ?, ?, ?)',
+  [empleado_id, puesto_id, fecha, hora_entrada, hora_salida, horas_normales, horas_extras, created_by]
+);
+```
+
+**Raw Queries**:
+```typescript
+const [rows] = await turnosPool.query<RowDataPacket[]>(
+  'SELECT * FROM clientes WHERE activo = 1 LIMIT ?, ?',
+  [offset, limit]
+);
+```
+
+**Transactions**:
+```typescript
+const connection = await turnosPool.getConnection();
+await connection.beginTransaction();
+try {
+  await connection.query('INSERT INTO ...');
+  await connection.query('UPDATE ...');
+  await connection.commit();
+} catch (error) {
+  await connection.rollback();
+  throw error;
+} finally {
+  connection.release();
+}
+```
+
+### Environment Variables
+
+All environment variables are validated on startup using Zod schemas (`src/config/env.ts`). Server will fail fast with clear error messages if required variables are missing.
+
+**Required Variables**:
+- `DB_TURNOS_*`: Primary database credentials
+- `DB_RRHH_*`: HR database credentials (read-only)
+- `PORT`: Server port (default: 3000)
+- `NODE_ENV`: development | production | test
+- `JWT_SECRET`: Secret for signing JWT tokens (min 32 chars)
+
+**Optional Variables**:
+- `JWT_EXPIRES_IN`: Access token expiration (default: 15m)
+- `JWT_REFRESH_EXPIRES_IN`: Refresh token expiration (default: 7d)
+- `LOG_LEVEL`: error | warn | info | debug
+- `CORS_ORIGIN`: Allowed CORS origins
+
 ---
 
-**Last updated**: 2026-01-17
-**Project Phase**: Phase 1 - Foundation
-**Backend Status**: Not started
-**Frontend Status**: Not started
-**Database Status**: Schema designed, awaiting deployment
+**Last updated**: 2026-04-04
+**Project Phase**: Phase 4 - Integration & Testing (Next)
+**Backend Status**: COMPLETED ✅ - All 28 tasks complete (Authentication, CRUDs, Shifts, Reports, Documentation)
+**Frontend Status**: COMPLETED ✅ - All 17 tasks complete (Auth, CRUDs, Turnos, Reportes, Layout)
+**Database Status**: Deployed and operational with 515 active guards

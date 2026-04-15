@@ -1,7 +1,25 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(\"C:\\\\Program Files\\\\MySQL\\\\MySQL Server 8.0\\\\bin\\\\mysql.exe\" -u root -pRHoss.1234 -e \"USE db_aae4a2_ranger; SHOW TABLES LIKE ''rh_empleado'';\")",
+      "Bash(\"C:\\\\Program Files\\\\MySQL\\\\MySQL Server 8.0\\\\bin\\\\mysql.exe\" -u root -pRHoss.1234 -e \"USE db_aae4a2_ranger; DESCRIBE rh_empleado;\")",
+      "Bash(\"C:\\\\Program Files\\\\MySQL\\\\MySQL Server 8.0\\\\bin\\\\mysql.exe\" -u root -pRHoss.1234 -e \"USE db_aae4a2_ranger; SHOW CREATE TABLE rh_empleado\\\\G\")",
+      "Bash(\"C:\\\\Program Files\\\\MySQL\\\\MySQL Server 8.0\\\\bin\\\\mysql.exe\" -u root -pRHoss.1234 -e \"USE db_aae4a2_ranger; SHOW INDEX FROM rh_empleado;\")",
+      "Bash(\"C:\\\\Program Files\\\\MySQL\\\\MySQL Server 8.0\\\\bin\\\\mysql.exe\" -u root -pRHoss.1234 -e \"USE db_aae4a2_ranger; SELECT COUNT\\(*\\) AS guardianes_activos FROM rh_empleado WHERE id_puesto = 97 AND status = 1;\")",
+      "WebSearch",
+      "Bash(\"C:\\\\Program Files\\\\MySQL\\\\MySQL Server 8.0\\\\bin\\\\mysql.exe\" -u root -pRHoss.1234 turnos_guardianes -e \"\n-- RESUMEN COMPLETO DE VALIDACIONES\nSELECT ''=========================================='' AS '''';\nSELECT ''RESUMEN FINAL DE VALIDACIONES'' AS '''';\nSELECT ''=========================================='' AS '''';\n\nSELECT '''' AS '''';\nSELECT ''1. Total de turnos creados en pruebas:'' AS '''';\nSELECT COUNT\\(*\\) AS cantidad FROM turnos WHERE empleado_id IN \\(1, 999\\);\n\nSELECT '''' AS '''';\nSELECT ''2. Turnos por tipo:'' AS '''';\nSELECT tipo_turno, COUNT\\(*\\) AS cantidad \nFROM turnos \nWHERE empleado_id IN \\(1, 999\\) \nGROUP BY tipo_turno;\n\nSELECT '''' AS '''';\nSELECT ''3. Turnos en feriados:'' AS '''';\nSELECT COUNT\\(*\\) AS cantidad \nFROM turnos \nWHERE empleado_id IN \\(1, 999\\) AND es_feriado = TRUE;\n\nSELECT '''' AS '''';\nSELECT ''4. Validación de límites \\(NO deben existir turnos inválidos\\):'' AS '''';\nSELECT \n  CASE \n    WHEN COUNT\\(*\\) = 0 THEN ''CORRECTO - Trigger funcionando''\n    ELSE CONCAT\\(''ERROR - '', COUNT\\(*\\), '' turnos inválidos''\\)\n  END AS resultado\nFROM turnos \nWHERE empleado_id IN \\(1, 999\\) \n  AND \\(horas_normales > 12 OR horas_extras > 4 OR \\(horas_normales + horas_extras\\) > 16\\);\n\nSELECT '''' AS '''';\nSELECT ''5. Turno con límite máximo permitido \\(12h + 4h = 16h\\):'' AS '''';\nSELECT COUNT\\(*\\) AS cantidad \nFROM turnos \nWHERE empleado_id IN \\(1, 999\\) \n  AND horas_normales = 12 AND horas_extras = 4;\n\")",
+      "Bash(npm init:*)",
+      "Bash(npm install)",
+      "Bash(npm run build:*)",
+      "Bash(test:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run db:seed:*)",
+      "Bash(npm run db:examples:*)",
+      "Bash(npm run db:reset:*)",
+      "Bash(npm:*)",
+      "Bash(ng version:*)",
+      "Bash(npx -p @angular/cli@latest ng new frontend --routing --style=scss --skip-git --package-manager=npm)"
     ]
   }
 }

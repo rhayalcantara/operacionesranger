@@ -1,0 +1,63 @@
+<mat-toolbar class="app-toolbar">
+  <!-- Botón toggle sidebar (visible solo en mobile/tablet) -->
+  <button
+    mat-icon-button
+    class="toggle-button"
+    (click)="onToggleSidebar()"
+    aria-label="Toggle sidebar"
+  >
+    <mat-icon>menu</mat-icon>
+  </button>
+
+  <!-- Título de la aplicación -->
+  <h1 class="app-title">Sistema de Gestión de Turnos</h1>
+
+  <!-- Spacer -->
+  <span class="spacer"></span>
+
+  <!-- Área derecha del header -->
+  <div class="header-actions" *ngIf="currentUser">
+
+    <!-- Info del usuario (oculto en mobile) -->
+    <div class="user-details">
+      <span class="user-name">{{ currentUser.nombre_completo }}</span>
+      <span [ngClass]="getRoleBadgeClass()">{{ getRoleLabel() }}</span>
+    </div>
+
+    <!-- Separador visual -->
+    <span class="action-divider"></span>
+
+    <!-- Theme toggle -->
+    <button
+      mat-icon-button
+      (click)="onToggleTheme()"
+      [attr.aria-label]="isDark ? 'Modo claro' : 'Modo oscuro'"
+      class="header-btn theme-toggle"
+      [matTooltip]="isDark ? 'Modo claro' : 'Modo oscuro'"
+    >
+      <mat-icon>{{ isDark ? 'light_mode' : 'dark_mode' }}</mat-icon>
+    </button>
+
+    <!-- Cambiar contraseña -->
+    <button
+      mat-icon-button
+      (click)="onChangePassword()"
+      aria-label="Cambiar contraseña"
+      class="header-btn"
+      matTooltip="Cambiar Contraseña"
+    >
+      <mat-icon>lock</mat-icon>
+    </button>
+
+    <!-- Logout -->
+    <button
+      mat-icon-button
+      (click)="onLogout()"
+      aria-label="Cerrar sesión"
+      class="header-btn logout-btn"
+      matTooltip="Cerrar Sesión"
+    >
+      <mat-icon>logout</mat-icon>
+    </button>
+  </div>
+</mat-toolbar>

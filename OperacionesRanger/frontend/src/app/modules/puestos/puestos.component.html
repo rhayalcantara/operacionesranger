@@ -1,0 +1,162 @@
+<div class="puestos-container">
+  <div class="header">
+    <h1>Gestión de Puestos</h1>
+    <button mat-raised-button color="primary" (click)="abrirFormularioCrear()">
+      <mat-icon>add</mat-icon>
+      Nuevo Puesto
+    </button>
+  </div>
+
+  <!-- Filtros -->
+  <mat-card class="filters-card">
+    <mat-card-content>
+      <div class="filters-row">
+        <!-- Filtro por Cliente -->
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Cliente</mat-label>
+          <mat-select [formControl]="clienteFilterControl" (selectionChange)="onClienteChange()">
+            <mat-option [value]="null">Todos</mat-option>
+            <mat-option *ngFor="let cliente of clientesDisponibles" [value]="cliente.id">
+              {{ cliente.nombre }}
+            </mat-option>
+          </mat-select>
+          <mat-icon matPrefix>business</mat-icon>
+        </mat-form-field>
+
+        <!-- Filtro por Ubicación -->
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Ubicación</mat-label>
+          <mat-select
+            [formControl]="ubicacionFilterControl"
+            [disabled]="!clienteFilterControl.value"
+            (selectionChange)="onUbicacionChange()">
+            <mat-option [value]="null">Todas</mat-option>
+            <mat-option *ngFor="let ubicacion of ubicacionesDisponibles" [value]="ubicacion.id">
+              {{ ubicacion.nombre }}
+            </mat-option>
+          </mat-select>
+          <mat-icon matPrefix>location_on</mat-icon>
+        </mat-form-field>
+
+        <!-- Búsqueda -->
+        <mat-form-field appearance="outline" class="filter-field search-field">
+          <mat-label>Buscar</mat-label>
+          <input matInput [formControl]="searchControl" placeholder="Código o nombre del puesto">
+          <mat-icon matPrefix>search</mat-icon>
+          <button mat-icon-button matSuffix *ngIf="searchControl.value" (click)="limpiarBusqueda()">
+            <mat-icon>clear</mat-icon>
+          </button>
+        </mat-form-field>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Tabla de Puestos -->
+  <mat-card class="table-card">
+    <mat-card-content>
+      <div class="table-container">
+        <div *ngIf="isLoading()" class="loading-overlay">
+          <mat-spinner></mat-spinner>
+        </div>
+
+        <table mat-table [dataSource]="dataSource" class="puestos-table" *ngIf="!isLoading()">
+          <!-- Código Column -->
+          <ng-container matColumnDef="codigo">
+            <th mat-header-cell *matHeaderCellDef>Código</th>
+            <td mat-cell *matCellDef="let puesto">{{ puesto.codigo }}</td>
+          </ng-container>
+
+          <!-- Nombre Column -->
+          <ng-container matColumnDef="nombre">
+            <th mat-header-cell *matHeaderCellDef>Nombre</th>
+            <td mat-cell *matCellDef="let puesto">{{ puesto.nombre }}</td>
+          </ng-container>
+
+          <!-- Ubicación Column -->
+          <ng-container matColumnDef="ubicacion">
+            <th mat-header-cell *matHeaderCellDef>Ubicación</th>
+            <td mat-cell *matCellDef="let puesto">{{ puesto.ubicacion?.nombre || 'N/A' }}</td>
+          </ng-container>
+
+          <!-- Cliente Column -->
+          <ng-container matColumnDef="cliente">
+            <th mat-header-cell *matHeaderCellDef>Cliente</th>
+            <td mat-cell *matCellDef="let puesto">{{ puesto.ubicacion?.cliente?.nombre || 'N/A' }}</td>
+          </ng-container>
+
+          <!-- Cantidad Guardianes Column -->
+          <ng-container matColumnDef="cantidad_guardianes">
+            <th mat-header-cell *matHeaderCellDef>Guardianes</th>
+            <td mat-cell *matCellDef="let puesto">{{ puesto.cantidad_guardianes || 1 }}</td>
+          </ng-container>
+
+          <!-- Turnos Requeridos Column -->
+          <ng-container matColumnDef="turnos_requeridos">
+            <th mat-header-cell *matHeaderCellDef>Turnos Requeridos</th>
+            <td mat-cell *matCellDef="let puesto">
+              <mat-chip-set>
+                <mat-chip *ngIf="puesto.requiere_turno_diurno" class="chip-diurno">
+                  Diurno
+                </mat-chip>
+                <mat-chip *ngIf="puesto.requiere_turno_nocturno" class="chip-nocturno">
+                  Nocturno
+                </mat-chip>
+              </mat-chip-set>
+            </td>
+          </ng-container>
+
+          <!-- Activo Column -->
+          <ng-container matColumnDef="activo">
+            <th mat-header-cell *matHeaderCellDef>Estado</th>
+            <td mat-cell *matCellDef="let puesto">
+              <mat-chip-set>
+                <mat-chip [highlighted]="puesto.activo" [class.inactive-chip]="!puesto.activo">
+                  {{ puesto.activo ? 'Activo' : 'Inactivo' }}
+                </mat-chip>
+              </mat-chip-set>
+            </td>
+          </ng-container>
+
+          <!-- Acciones Column -->
+          <ng-container matColumnDef="acciones">
+            <th mat-header-cell *matHeaderCellDef>Acciones</th>
+            <td mat-cell *matCellDef="let puesto">
+              <button mat-icon-button color="primary" (click)="abrirFormularioEditar(puesto)" matTooltip="Editar">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="accent" (click)="verTurnosPuesto(puesto)" matTooltip="Ver Turnos">
+                <mat-icon>list</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="eliminarPuesto(puesto)" matTooltip="Eliminar">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+          <!-- Empty state -->
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+              <div class="empty-state">
+                <mat-icon>inbox</mat-icon>
+                <p>No se encontraron puestos</p>
+              </div>
+            </td>
+          </tr>
+        </table>
+
+        <!-- Paginador -->
+        <mat-paginator
+          [length]="totalPuestos"
+          [pageSize]="pageSize"
+          [pageSizeOptions]="[5, 10, 25, 50]"
+          [pageIndex]="pageIndex"
+          (page)="onPageChange($event)"
+          showFirstLastButtons>
+        </mat-paginator>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

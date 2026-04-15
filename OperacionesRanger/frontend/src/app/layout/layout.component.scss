@@ -1,0 +1,51 @@
+.sidenav-container {
+  height: 100vh;
+  width: 100%;
+}
+
+.sidenav {
+  width: 250px;
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border);
+
+  @media (min-width: 768px) and (max-width: 1024px) {
+    width: 200px;
+  }
+
+  @media (max-width: 767px) {
+    width: 80vw;
+    max-width: 300px;
+  }
+}
+
+.main-content {
+  padding: 16px;
+  min-height: calc(100vh - 64px);
+  background: var(--bg-content);
+
+  @media (min-width: 768px) and (max-width: 1024px) {
+    padding: 12px;
+  }
+
+  @media (max-width: 767px) {
+    padding: 8px;
+  }
+}
+
+mat-sidenav-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidenav {
+  transition: width 0.3s ease-in-out;
+}
+
+.main-content {
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+::ng-deep .mat-drawer-backdrop {
+  background-color: var(--overlay);
+}

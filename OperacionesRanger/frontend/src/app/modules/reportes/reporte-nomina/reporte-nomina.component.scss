@@ -1,0 +1,501 @@
+.reporte-nomina-container {
+  padding: 24px;
+  max-width: 1600px;
+  margin: 0 auto;
+
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
+}
+
+// ==================== Header ====================
+.header {
+  margin-bottom: 24px;
+
+  .title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 28px;
+    font-weight: 500;
+    color: #1976d2;
+    margin: 0 0 8px 0;
+
+    mat-icon {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+    }
+
+    @media (max-width: 768px) {
+      font-size: 22px;
+
+      mat-icon {
+        font-size: 26px;
+        width: 26px;
+        height: 26px;
+      }
+    }
+  }
+
+  .subtitle {
+    color: #666;
+    margin: 0;
+    padding-left: 44px;
+    font-size: 14px;
+
+    @media (max-width: 768px) {
+      padding-left: 0;
+      font-size: 13px;
+    }
+  }
+}
+
+// ==================== Cards ====================
+.parametros-card,
+.preview-card {
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  mat-card-header {
+    margin-bottom: 16px;
+
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 20px;
+      font-weight: 500;
+
+      mat-icon {
+        color: #1976d2;
+      }
+    }
+  }
+}
+
+// ==================== Formulario ====================
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.fecha-range-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+
+  .fecha-field {
+    width: 100%;
+  }
+}
+
+.validation-errors {
+  mat-error {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #f44336;
+    padding: 8px 12px;
+    background-color: #ffebee;
+    border-radius: 4px;
+    margin-bottom: 8px;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+// ==================== Presets ====================
+.presets-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+
+  .presets-label {
+    font-weight: 500;
+    color: #666;
+    font-size: 14px;
+    margin-right: 8px;
+
+    @media (max-width: 768px) {
+      width: 100%;
+      margin-bottom: 8px;
+    }
+  }
+
+  .preset-button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    padding: 0 12px;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    @media (max-width: 768px) {
+      font-size: 12px;
+      padding: 0 8px;
+    }
+  }
+}
+
+// ==================== Botones de acción ====================
+.actions-row {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-start;
+  align-items: center;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .action-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 24px;
+    height: 40px;
+    font-weight: 500;
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
+    mat-spinner {
+      margin: 0 8px;
+    }
+
+    @media (max-width: 768px) {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+}
+
+// ==================== Vista previa ====================
+.resumen-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 16px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+}
+
+.resumen-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 14px;
+
+  mat-icon {
+    color: #1976d2;
+  }
+
+  .resumen-text {
+    strong {
+      color: #333;
+      margin-right: 4px;
+    }
+  }
+
+  .resumen-separator {
+    color: #ccc;
+    font-size: 16px;
+
+    @media (max-width: 768px) {
+      display: none;
+    }
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+.resumen-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background-color: white;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    font-size: 13px;
+
+    mat-icon {
+      color: #1976d2;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
+    strong {
+      color: #1976d2;
+      margin-left: 4px;
+    }
+  }
+}
+
+// ==================== Empty state ====================
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  color: #999;
+
+  mat-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+  }
+
+  h3 {
+    margin: 0 0 8px 0;
+    font-weight: 500;
+    color: #666;
+  }
+
+  p {
+    margin: 0;
+    font-size: 14px;
+  }
+}
+
+// ==================== Tabla ====================
+.table-container {
+  overflow-x: auto;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.preview-table {
+  width: 100%;
+  background-color: white;
+
+  th {
+    background-color: #f5f5f5;
+    font-weight: 600;
+    color: #333;
+    padding: 12px 16px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  td {
+    padding: 12px 16px;
+    font-size: 14px;
+    color: #555;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  tr:hover {
+    background-color: #fafafa;
+  }
+
+  // Columna Empleado
+  .empleado-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    strong {
+      color: #333;
+    }
+
+    .empleado-id {
+      font-size: 12px;
+      color: #999;
+    }
+  }
+
+  // Columna Puesto
+  .puesto-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    strong {
+      color: #1976d2;
+      font-family: 'Courier New', monospace;
+    }
+
+    .puesto-nombre {
+      font-size: 12px;
+      color: #666;
+    }
+  }
+
+  // Columna Total
+  .total-cell {
+    font-weight: 600;
+    color: #1976d2;
+  }
+
+  // Columna Incentivo
+  .incentivo-cell {
+    font-weight: 500;
+    color: #4caf50;
+  }
+
+  // No feriado
+  .no-feriado {
+    color: #ccc;
+    font-size: 16px;
+  }
+}
+
+// ==================== Chips ====================
+mat-chip {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 12px;
+  border-radius: 16px;
+  height: auto;
+  min-height: 28px;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.tipo-chip {
+  &.chip-diurno {
+    background-color: #fff8e1;
+    color: #f57c00;
+
+    mat-icon {
+      color: #f57c00;
+    }
+  }
+
+  &.chip-nocturno {
+    background-color: #e3f2fd;
+    color: #1976d2;
+
+    mat-icon {
+      color: #1976d2;
+    }
+  }
+}
+
+.feriado-chip {
+  background-color: #ffebee;
+  color: #d32f2f;
+
+  mat-icon {
+    color: #d32f2f;
+  }
+}
+
+// ==================== Paginador ====================
+mat-paginator {
+  border-top: 1px solid #e0e0e0;
+  background-color: #fafafa;
+}
+
+// ==================== Loading states ====================
+mat-spinner {
+  display: inline-block;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+// ==================== Animaciones ====================
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.preview-card {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+// ==================== Scrollbar personalizado ====================
+.table-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+// ==================== Utilidades ====================
+.text-center {
+  text-align: center;
+}
+
+.text-muted {
+  color: #999;
+}
+
+.font-bold {
+  font-weight: 600;
+}

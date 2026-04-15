@@ -1,0 +1,224 @@
+.puestos-container {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    button {
+      mat-icon {
+        margin-right: 8px;
+      }
+    }
+  }
+
+  .filters-card {
+    margin-bottom: 24px;
+
+    .filters-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+      align-items: start;
+
+      .filter-field {
+        width: 100%;
+      }
+
+      .search-field {
+        min-width: 300px;
+      }
+    }
+  }
+
+  .table-card {
+    .table-container {
+      position: relative;
+      min-height: 400px;
+
+      .loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(255, 255, 255, 0.7);
+        z-index: 10;
+      }
+
+      .puestos-table {
+        width: 100%;
+
+        th {
+          background-color: #f5f5f5;
+          font-weight: 600;
+          color: #333;
+        }
+
+        td {
+          padding: 12px 8px;
+        }
+
+        mat-chip-set {
+          display: inline-flex;
+          gap: 4px;
+
+          mat-chip {
+            font-size: 12px;
+            min-height: 28px;
+            padding: 0 12px;
+
+            &.inactive-chip {
+              background-color: #f5f5f5;
+              color: #666;
+            }
+
+            &.chip-diurno {
+              background-color: #fff9c4;
+              color: #f57f17;
+              border: 1px solid #fbc02d;
+            }
+
+            &.chip-nocturno {
+              background-color: #e1f5fe;
+              color: #01579b;
+              border: 1px solid #039be5;
+            }
+          }
+        }
+
+        .empty-state {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 48px 24px;
+          color: #999;
+
+          mat-icon {
+            font-size: 64px;
+            width: 64px;
+            height: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+          }
+
+          p {
+            margin: 0;
+            font-size: 16px;
+          }
+        }
+      }
+
+      mat-paginator {
+        border-top: 1px solid #e0e0e0;
+      }
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 1024px) {
+  .puestos-container {
+    .filters-card {
+      .filters-row {
+        grid-template-columns: 1fr;
+
+        .search-field {
+          min-width: unset;
+        }
+      }
+    }
+
+    .table-card {
+      .puestos-table {
+        // Ocultar columnas en tablets
+        .mat-column-horario_esperado {
+          display: none;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .puestos-container {
+    padding: 16px;
+
+    .header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+
+      button {
+        width: 100%;
+      }
+    }
+
+    .table-card {
+      .puestos-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+
+        // Mostrar como cards en móvil
+        thead {
+          display: none;
+        }
+
+        tbody {
+          display: block;
+        }
+
+        tr {
+          display: block;
+          margin-bottom: 16px;
+          border: 1px solid #e0e0e0;
+          border-radius: 8px;
+          padding: 12px;
+
+          &.mat-header-row {
+            display: none;
+          }
+
+          td {
+            display: block;
+            text-align: left;
+            padding: 8px 0;
+            border: none;
+
+            &::before {
+              content: attr(data-label);
+              font-weight: 600;
+              display: inline-block;
+              width: 120px;
+              margin-right: 8px;
+            }
+
+            &.mat-column-acciones {
+              display: flex;
+              justify-content: flex-end;
+              gap: 8px;
+              padding-top: 16px;
+              border-top: 1px solid #e0e0e0;
+            }
+          }
+        }
+      }
+    }
+  }
+}

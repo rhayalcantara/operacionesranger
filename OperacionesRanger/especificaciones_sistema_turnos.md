@@ -1,7 +1,7 @@
 # Sistema de Gestión de Turnos - Guardianes de Seguridad
 ## Documento de Especificaciones
 
-### COOPASPIRE - República Dominicana
+### Guardianes Ranger - República Dominicana
 **Versión:** 1.0  
 **Fecha:** Enero 2026
 

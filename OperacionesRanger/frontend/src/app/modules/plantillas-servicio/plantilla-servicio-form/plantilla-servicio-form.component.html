@@ -1,0 +1,145 @@
+<h2 mat-dialog-title>{{ isEditMode ? 'Editar Plantilla de Servicio' : 'Nueva Plantilla de Servicio' }}</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="plantillaForm" class="plantilla-form">
+    <!-- Datos de la Plantilla -->
+    <div class="section-header">
+      <mat-icon>content_copy</mat-icon>
+      <h3>Datos de la Plantilla</h3>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Nombre *</mat-label>
+        <input matInput formControlName="nombre" placeholder="Nombre de la plantilla" maxlength="100">
+        <mat-icon matPrefix>label</mat-icon>
+        <mat-error *ngIf="plantillaForm.get('nombre')?.hasError('required')">
+          El nombre es requerido
+        </mat-error>
+        <mat-error *ngIf="plantillaForm.get('nombre')?.hasError('maxlength')">
+          Máximo 100 caracteres
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Descripción</mat-label>
+        <input matInput formControlName="descripcion" placeholder="Descripción opcional" maxlength="255">
+        <mat-icon matPrefix>description</mat-icon>
+        <mat-error *ngIf="plantillaForm.get('descripcion')?.hasError('maxlength')">
+          Máximo 255 caracteres
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="checkboxes-row">
+      <mat-checkbox formControlName="activo">
+        Activa
+      </mat-checkbox>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Detalles: Servicios incluidos -->
+    <div class="section-header">
+      <mat-icon>list_alt</mat-icon>
+      <h3>Servicios Incluidos</h3>
+      <button
+        mat-mini-fab
+        color="primary"
+        type="button"
+        (click)="agregarDetalleRow()"
+        matTooltip="Agregar servicio"
+        class="add-detail-btn">
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
+
+    <div class="detalles-container" formArrayName="detalles">
+      <div
+        class="detalle-row"
+        *ngFor="let detalle of detalles.controls; let i = index"
+        [formGroupName]="i">
+
+        <span class="row-number">{{ i + 1 }}</span>
+
+        <!-- Selector de Puesto -->
+        <mat-form-field appearance="outline" class="detalle-field">
+          <mat-label>Puesto *</mat-label>
+          <mat-select formControlName="puesto_id" (selectionChange)="onPuestoChange(i)">
+            <mat-option *ngFor="let puesto of puestosDisponibles" [value]="puesto.id">
+              {{ puesto.codigo }} - {{ puesto.nombre }}
+              <span class="option-hint" *ngIf="puesto.ubicacion">
+                ({{ puesto.ubicacion.nombre }})
+              </span>
+            </mat-option>
+          </mat-select>
+          <mat-icon matPrefix>work</mat-icon>
+          <mat-error *ngIf="detalle.get('puesto_id')?.hasError('required')">
+            Requerido
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Selector de Servicio por Puesto -->
+        <mat-form-field appearance="outline" class="detalle-field">
+          <mat-label>Servicio *</mat-label>
+          <mat-select
+            formControlName="servicio_puesto_id"
+            [disabled]="!detalle.get('puesto_id')?.value || (serviciosPorPuesto[i]?.length || 0) === 0">
+            <mat-option *ngFor="let servicio of serviciosPorPuesto[i]" [value]="servicio.id">
+              {{ servicio.tipo_turno }} - {{ servicio.puesto_nombre }}
+              <span class="option-hint" *ngIf="servicio.cliente_nombre">
+                ({{ servicio.cliente_nombre }})
+              </span>
+            </mat-option>
+          </mat-select>
+          <mat-icon matPrefix>assignment_ind</mat-icon>
+          <mat-hint *ngIf="!detalle.get('puesto_id')?.value">
+            Primero seleccione un puesto
+          </mat-hint>
+          <mat-hint *ngIf="detalle.get('puesto_id')?.value && (serviciosPorPuesto[i]?.length || 0) === 0">
+            Sin servicios disponibles
+          </mat-hint>
+          <mat-error *ngIf="detalle.get('servicio_puesto_id')?.hasError('required')">
+            Requerido
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Boton eliminar fila -->
+        <button
+          mat-icon-button
+          color="warn"
+          type="button"
+          (click)="eliminarDetalleRow(i)"
+          matTooltip="Eliminar servicio"
+          class="remove-row-btn">
+          <mat-icon>remove_circle_outline</mat-icon>
+        </button>
+      </div>
+
+      <!-- Estado vacio de detalles -->
+      <div class="empty-detalles" *ngIf="detalles.length === 0">
+        <mat-icon>playlist_add</mat-icon>
+        <p>No hay servicios agregados. Haga clic en el botón "+" para agregar.</p>
+      </div>
+    </div>
+  </form>
+
+  <!-- Loading overlay -->
+  <div *ngIf="isLoading" class="loading-overlay">
+    <mat-spinner></mat-spinner>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()" [disabled]="isLoading">
+    Cancelar
+  </button>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="onSubmit()"
+    [disabled]="plantillaForm.invalid || isLoading || detalles.length === 0">
+    <mat-icon>save</mat-icon>
+    {{ isEditMode ? 'Actualizar' : 'Crear' }}
+  </button>
+</mat-dialog-actions>

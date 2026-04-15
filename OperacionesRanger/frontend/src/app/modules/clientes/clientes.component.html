@@ -1,0 +1,174 @@
+<div class="clientes-container">
+  <!-- Header -->
+  <div class="header">
+    <div class="title-section">
+      <h1>Gestión de Clientes</h1>
+      <p class="subtitle">Administración de clientes del sistema</p>
+    </div>
+    <button mat-raised-button color="primary" (click)="abrirFormularioCrear()">
+      <mat-icon>add</mat-icon>
+      Nuevo Cliente
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-section">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Buscar</mat-label>
+      <input matInput [formControl]="searchControl" placeholder="Buscar por nombre, código o RUC">
+      <mat-icon matPrefix>search</mat-icon>
+      <button mat-icon-button matSuffix *ngIf="searchControl.value" (click)="searchControl.setValue('')">
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
+
+    <mat-checkbox [formControl]="soloActivosControl" class="activos-checkbox">
+      Solo activos
+    </mat-checkbox>
+
+    <button mat-stroked-button (click)="limpiarFiltros()" class="clear-filters-btn">
+      <mat-icon>clear_all</mat-icon>
+      Limpiar filtros
+    </button>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div class="loading-container" *ngIf="isLoading() && dataSource.length === 0">
+    <mat-spinner></mat-spinner>
+    <p>Cargando clientes...</p>
+  </div>
+
+  <!-- Table (Desktop) -->
+  <div class="table-container" *ngIf="!isLoading() || dataSource.length > 0">
+    <table mat-table [dataSource]="dataSource" class="clientes-table mat-elevation-z2">
+      <!-- Código Column -->
+      <ng-container matColumnDef="codigo">
+        <th mat-header-cell *matHeaderCellDef>Código</th>
+        <td mat-cell *matCellDef="let cliente">{{ cliente.codigo || 'N/A' }}</td>
+      </ng-container>
+
+      <!-- Nombre Column -->
+      <ng-container matColumnDef="nombre">
+        <th mat-header-cell *matHeaderCellDef>Nombre</th>
+        <td mat-cell *matCellDef="let cliente" class="nombre-cell">{{ cliente.nombre }}</td>
+      </ng-container>
+
+      <!-- RUC Column -->
+      <ng-container matColumnDef="ruc">
+        <th mat-header-cell *matHeaderCellDef>RUC</th>
+        <td mat-cell *matCellDef="let cliente">{{ cliente.ruc }}</td>
+      </ng-container>
+
+      <!-- Teléfono Column -->
+      <ng-container matColumnDef="telefono">
+        <th mat-header-cell *matHeaderCellDef>Teléfono</th>
+        <td mat-cell *matCellDef="let cliente">{{ cliente.telefono || '-' }}</td>
+      </ng-container>
+
+      <!-- Email Column -->
+      <ng-container matColumnDef="email">
+        <th mat-header-cell *matHeaderCellDef>Email</th>
+        <td mat-cell *matCellDef="let cliente">{{ cliente.email || '-' }}</td>
+      </ng-container>
+
+      <!-- Contacto Column -->
+      <ng-container matColumnDef="contacto_nombre">
+        <th mat-header-cell *matHeaderCellDef>Contacto</th>
+        <td mat-cell *matCellDef="let cliente">{{ cliente.contacto_nombre || '-' }}</td>
+      </ng-container>
+
+      <!-- Activo Column -->
+      <ng-container matColumnDef="activo">
+        <th mat-header-cell *matHeaderCellDef>Estado</th>
+        <td mat-cell *matCellDef="let cliente">
+          <mat-chip [class.activo]="cliente.activo" [class.inactivo]="!cliente.activo">
+            {{ cliente.activo ? 'Activo' : 'Inactivo' }}
+          </mat-chip>
+        </td>
+      </ng-container>
+
+      <!-- Acciones Column -->
+      <ng-container matColumnDef="acciones">
+        <th mat-header-cell *matHeaderCellDef>Acciones</th>
+        <td mat-cell *matCellDef="let cliente" class="acciones-cell">
+          <button mat-icon-button color="primary" (click)="abrirFormularioEditar(cliente)" matTooltip="Editar">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="eliminarCliente(cliente)" matTooltip="Eliminar">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+      <!-- No data row -->
+      <tr class="mat-row no-data-row" *matNoDataRow>
+        <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+          <div class="no-data-message">
+            <mat-icon>info</mat-icon>
+            <p>No se encontraron clientes</p>
+          </div>
+        </td>
+      </tr>
+    </table>
+
+    <!-- Paginator -->
+    <mat-paginator
+      [length]="totalClientes"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="[5, 10, 25, 50]"
+      [pageIndex]="pageIndex"
+      (page)="onPageChange($event)"
+      showFirstLastButtons>
+    </mat-paginator>
+  </div>
+
+  <!-- Mobile Cards View -->
+  <div class="mobile-cards" *ngIf="!isLoading() || dataSource.length > 0">
+    <mat-card *ngFor="let cliente of dataSource" class="cliente-card">
+      <mat-card-header>
+        <mat-card-title>{{ cliente.nombre }}</mat-card-title>
+        <mat-card-subtitle>{{ cliente.codigo || 'Sin código' }}</mat-card-subtitle>
+        <mat-chip [class.activo]="cliente.activo" [class.inactivo]="!cliente.activo" class="status-chip">
+          {{ cliente.activo ? 'Activo' : 'Inactivo' }}
+        </mat-chip>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-row">
+          <mat-icon>badge</mat-icon>
+          <span>{{ cliente.ruc }}</span>
+        </div>
+        <div class="info-row" *ngIf="cliente.telefono">
+          <mat-icon>phone</mat-icon>
+          <span>{{ cliente.telefono }}</span>
+        </div>
+        <div class="info-row" *ngIf="cliente.email">
+          <mat-icon>email</mat-icon>
+          <span>{{ cliente.email }}</span>
+        </div>
+        <div class="info-row" *ngIf="cliente.contacto_nombre">
+          <mat-icon>person</mat-icon>
+          <span>{{ cliente.contacto_nombre }}</span>
+        </div>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-button color="primary" (click)="abrirFormularioEditar(cliente)">
+          <mat-icon>edit</mat-icon>
+          Editar
+        </button>
+        <button mat-button color="warn" (click)="eliminarCliente(cliente)">
+          <mat-icon>delete</mat-icon>
+          Eliminar
+        </button>
+      </mat-card-actions>
+    </mat-card>
+
+    <!-- Mobile No Data -->
+    <div class="no-data-message mobile" *ngIf="dataSource.length === 0">
+      <mat-icon>info</mat-icon>
+      <p>No se encontraron clientes</p>
+    </div>
+  </div>
+</div>

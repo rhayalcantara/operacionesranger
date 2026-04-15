@@ -1,6 +1,7 @@
 # CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+para saber la metodologia que usamos lee el archivo e:\ranger sistemas\Metodologia.md
 
 ## Project Overview
 

@@ -1,0 +1,196 @@
+<h2 mat-dialog-title>
+  <mat-icon class="dialog-icon">attach_money</mat-icon>
+  {{ isEditMode ? 'Editar Incentivo' : 'Nuevo Incentivo' }}
+</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="incentivoForm" class="incentivo-form">
+
+    <!-- SECCIÓN 1: Selector Jerárquico de Puesto -->
+    <div class="form-section">
+      <h3 class="section-title">
+        <mat-icon>business</mat-icon>
+        Selección de Puesto
+      </h3>
+
+      <div class="form-row">
+        <!-- Cliente -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Cliente</mat-label>
+          <mat-select formControlName="cliente_id_selector" required>
+            <mat-option *ngFor="let cliente of clientes" [value]="cliente.id">
+              {{ cliente.nombre }}
+            </mat-option>
+          </mat-select>
+          <mat-icon matPrefix>business</mat-icon>
+          <mat-error *ngIf="incentivoForm.get('cliente_id_selector')?.hasError('required')">
+            Cliente es requerido
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <!-- Ubicación -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Ubicación</mat-label>
+          <mat-select
+            formControlName="ubicacion_id_selector"
+            required
+            [disabled]="ubicacionesDisponibles.length === 0">
+            <mat-option *ngFor="let ubicacion of ubicacionesDisponibles" [value]="ubicacion.id">
+              {{ ubicacion.nombre }}
+            </mat-option>
+          </mat-select>
+          <mat-icon matPrefix>location_on</mat-icon>
+          <mat-hint *ngIf="ubicacionesDisponibles.length === 0 && incentivoForm.get('cliente_id_selector')?.value">
+            No hay ubicaciones disponibles para este cliente
+          </mat-hint>
+          <mat-error *ngIf="incentivoForm.get('ubicacion_id_selector')?.hasError('required')">
+            Ubicación es requerida
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <!-- Puesto -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Puesto</mat-label>
+          <mat-select
+            formControlName="puesto_id"
+            required
+            [disabled]="puestosDisponibles.length === 0">
+            <mat-option *ngFor="let puesto of puestosDisponibles" [value]="puesto.id">
+              {{ puesto.codigo }} - {{ puesto.nombre }}
+            </mat-option>
+          </mat-select>
+          <mat-icon matPrefix>work</mat-icon>
+          <mat-hint *ngIf="puestosDisponibles.length === 0 && incentivoForm.get('ubicacion_id_selector')?.value">
+            No hay puestos disponibles para esta ubicación
+          </mat-hint>
+          <mat-error *ngIf="incentivoForm.get('puesto_id')?.hasError('required')">
+            Puesto es requerido
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- SECCIÓN 2: Monto y Cálculo -->
+    <div class="form-section">
+      <h3 class="section-title">
+        <mat-icon>attach_money</mat-icon>
+        Monto del Incentivo
+      </h3>
+
+      <div class="form-row">
+        <!-- Monto -->
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>Monto (RD$)</mat-label>
+          <input
+            matInput
+            type="number"
+            step="0.01"
+            formControlName="monto"
+            required>
+          <span matPrefix>RD$&nbsp;</span>
+          <mat-error *ngIf="incentivoForm.get('monto')?.hasError('required')">
+            Monto es requerido
+          </mat-error>
+          <mat-error *ngIf="incentivoForm.get('monto')?.hasError('min')">
+            Monto debe ser mayor a 0
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Valor Hora Calculado (Read-only) -->
+        <mat-form-field appearance="outline" class="half-width valor-hora-field">
+          <mat-label>Valor por Hora (Auto-calculado)</mat-label>
+          <input
+            matInput
+            [value]="valorHoraCalculado | currency:'RD$':'symbol':'1.2-2'"
+            readonly
+            class="valor-hora-input">
+          <span matPrefix>RD$&nbsp;</span>
+          <mat-icon
+            matSuffix
+            matTooltip="Quincena = 15 días × 24 horas = 360 horas"
+            class="info-icon">
+            info
+          </mat-icon>
+          <mat-hint>Calculado: monto ÷ 360 horas</mat-hint>
+        </mat-form-field>
+      </div>
+
+      <!-- Helper text -->
+      <div class="helper-text">
+        <mat-icon>info</mat-icon>
+        <span>
+          <strong>Quincena estándar:</strong> 15 días × 24 horas = 360 horas.
+          El valor por hora se calcula automáticamente dividiendo el monto entre 360.
+        </span>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- SECCIÓN 3: Información Adicional -->
+    <div class="form-section">
+      <h3 class="section-title">
+        <mat-icon>description</mat-icon>
+        Información Adicional
+      </h3>
+
+      <div class="form-row">
+        <!-- Concepto -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Concepto (Opcional)</mat-label>
+          <textarea
+            matInput
+            formControlName="concepto"
+            rows="3"
+            maxlength="255"
+            placeholder="Ej: Incentivo por ubicación remota, Compensación por turno especial, etc."></textarea>
+          <mat-icon matPrefix>notes</mat-icon>
+          <mat-hint align="end">{{ incentivoForm.get('concepto')?.value?.length || 0 }}/255</mat-hint>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <!-- Activo -->
+        <mat-checkbox formControlName="activo">
+          <strong>Incentivo Activo</strong>
+          <span class="checkbox-hint">
+            (El incentivo permanece activo hasta que se desactive manualmente)
+          </span>
+        </mat-checkbox>
+      </div>
+    </div>
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button
+    mat-button
+    type="button"
+    (click)="onCancel()"
+    [disabled]="isLoading">
+    <mat-icon>close</mat-icon>
+    Cancelar
+  </button>
+
+  <button
+    mat-raised-button
+    color="primary"
+    type="submit"
+    (click)="onSubmit()"
+    [disabled]="incentivoForm.invalid || isLoading">
+    <mat-spinner
+      *ngIf="isLoading"
+      diameter="20"
+      class="button-spinner">
+    </mat-spinner>
+    <mat-icon *ngIf="!isLoading">save</mat-icon>
+    {{ isEditMode ? 'Actualizar' : 'Guardar' }}
+  </button>
+</mat-dialog-actions>

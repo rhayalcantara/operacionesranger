@@ -1,0 +1,256 @@
+<div class="reporte-horas-container">
+  <!-- Header -->
+  <div class="header">
+    <h1 class="title">
+      <mat-icon>schedule</mat-icon>
+      Reporte de Horas Trabajadas
+    </h1>
+    <p class="subtitle">
+      Tabla pivot de horas trabajadas por empleado o puesto en un rango de fechas
+    </p>
+  </div>
+
+  <!-- Filtros -->
+  <mat-card class="filtros-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>filter_list</mat-icon>
+        Filtros del Reporte
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="formulario" class="formulario">
+        <!-- Rango de fechas -->
+        <div class="fecha-range-row">
+          <mat-form-field appearance="outline" class="fecha-field">
+            <mat-label>Fecha Inicio</mat-label>
+            <input
+              matInput
+              [matDatepicker]="pickerInicio"
+              formControlName="fechaInicio"
+              [max]="maxDate"
+              placeholder="Seleccione fecha"
+            />
+            <mat-datepicker-toggle matIconSuffix [for]="pickerInicio"></mat-datepicker-toggle>
+            <mat-datepicker #pickerInicio></mat-datepicker>
+            <mat-error *ngIf="formulario.get('fechaInicio')?.hasError('required')">
+              La fecha de inicio es requerida
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="fecha-field">
+            <mat-label>Fecha Fin</mat-label>
+            <input
+              matInput
+              [matDatepicker]="pickerFin"
+              formControlName="fechaFin"
+              [max]="maxDate"
+              placeholder="Seleccione fecha"
+            />
+            <mat-datepicker-toggle matIconSuffix [for]="pickerFin"></mat-datepicker-toggle>
+            <mat-datepicker #pickerFin></mat-datepicker>
+            <mat-error *ngIf="formulario.get('fechaFin')?.hasError('required')">
+              La fecha de fin es requerida
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- Errores de validación del grupo -->
+        <div class="validation-errors" *ngIf="formulario.errors && (formulario.touched || formulario.dirty)">
+          <mat-error *ngIf="formulario.errors['rangoInvalido']">
+            <mat-icon>error</mat-icon>
+            La fecha final debe ser mayor o igual a la fecha inicial
+          </mat-error>
+          <mat-error *ngIf="formulario.errors['rangoMaximo']">
+            <mat-icon>error</mat-icon>
+            El rango de fechas no puede ser mayor a 31 dias
+          </mat-error>
+        </div>
+
+        <!-- Toggle tipo de agrupación -->
+        <div class="tipo-row">
+          <span class="tipo-label">Agrupar por:</span>
+          <mat-radio-group formControlName="tipo" class="tipo-radio-group">
+            <mat-radio-button value="empleado" class="tipo-radio">
+              <mat-icon class="radio-icon">person</mat-icon>
+              Por Empleado
+            </mat-radio-button>
+            <mat-radio-button value="puesto" class="tipo-radio">
+              <mat-icon class="radio-icon">work</mat-icon>
+              Por Puesto
+            </mat-radio-button>
+          </mat-radio-group>
+        </div>
+
+        <!-- Filtro opcional: Empleado (cuando tipo=empleado) -->
+        <div class="filtro-opcional" *ngIf="tipoActual === 'empleado'">
+          <mat-form-field appearance="outline" class="filtro-field">
+            <mat-label>Filtrar por empleado (opcional)</mat-label>
+            <input
+              matInput
+              [formControl]="empleadoControl"
+              [matAutocomplete]="autoEmpleado"
+              placeholder="Buscar por nombre o cedula..."
+            />
+            <mat-icon matPrefix>search</mat-icon>
+            <button
+              *ngIf="empleadoControl.value"
+              matSuffix
+              mat-icon-button
+              aria-label="Limpiar"
+              (click)="empleadoControl.setValue('')"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+            <mat-autocomplete
+              #autoEmpleado="matAutocomplete"
+              [displayWith]="displayEmpleado"
+            >
+              <mat-option
+                *ngFor="let guardian of empleadosFiltrados$ | async"
+                [value]="guardian"
+              >
+                <div class="autocomplete-option">
+                  <span class="option-name">{{ guardian.nombres }} {{ guardian.apellidos }}</span>
+                  <span class="option-cedula">{{ guardian.cedula_empleado }}</span>
+                </div>
+              </mat-option>
+            </mat-autocomplete>
+            <mat-hint>Escriba al menos 2 caracteres para buscar</mat-hint>
+          </mat-form-field>
+        </div>
+
+        <!-- Filtro opcional: Puesto (cuando tipo=puesto) -->
+        <div class="filtro-opcional" *ngIf="tipoActual === 'puesto'">
+          <mat-form-field appearance="outline" class="filtro-field">
+            <mat-label>Filtrar por puesto (opcional)</mat-label>
+            <mat-select formControlName="puesto_id">
+              <mat-option [value]="null">-- Todos los puestos --</mat-option>
+              <mat-option *ngFor="let puesto of puestos" [value]="puesto.id">
+                {{ puesto.codigo }} - {{ puesto.nombre }}
+              </mat-option>
+            </mat-select>
+            <mat-icon matPrefix>work</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="actions-row">
+          <button
+            mat-raised-button
+            color="primary"
+            type="button"
+            class="action-button"
+            [disabled]="!puedeGenerar"
+            (click)="generarReporte()"
+          >
+            <mat-icon>assessment</mat-icon>
+            <span *ngIf="!isLoading">Generar Reporte</span>
+            <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
+          </button>
+
+          <button
+            mat-raised-button
+            color="accent"
+            type="button"
+            class="action-button"
+            [disabled]="!reporteData || reporteData.total_registros === 0"
+            (click)="exportarCSV()"
+          >
+            <mat-icon>download</mat-icon>
+            Exportar CSV
+          </button>
+
+          <button
+            mat-stroked-button
+            type="button"
+            class="action-button"
+            (click)="limpiar()"
+          >
+            <mat-icon>clear</mat-icon>
+            Limpiar
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Resultados -->
+  <mat-card *ngIf="showResults && reporteData" class="resultados-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>table_chart</mat-icon>
+        Resultados del Reporte
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!-- Resumen -->
+      <div class="resumen-container">
+        <div class="resumen-stats">
+          <div class="stat-chip">
+            <mat-icon>groups</mat-icon>
+            <span>Registros: <strong>{{ reporteData.total_registros }}</strong></span>
+          </div>
+          <div class="stat-chip">
+            <mat-icon>access_time</mat-icon>
+            <span>Total Horas: <strong>{{ totalHorasGeneral.toFixed(2) }}</strong></span>
+          </div>
+          <div class="stat-chip">
+            <mat-icon>date_range</mat-icon>
+            <span>Periodo: <strong>{{ formatFechaDisplay(reporteData.fecha_inicio) }} - {{ formatFechaDisplay(reporteData.fecha_fin) }}</strong></span>
+          </div>
+          <div class="stat-chip">
+            <mat-icon>{{ tipoActual === 'empleado' ? 'person' : 'work' }}</mat-icon>
+            <span>Agrupado por: <strong>{{ tipoActual === 'empleado' ? 'Empleado' : 'Puesto' }}</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty state -->
+      <div class="empty-state" *ngIf="reporteData.total_registros === 0">
+        <mat-icon>inbox</mat-icon>
+        <h3>No hay datos disponibles</h3>
+        <p>No se encontraron registros de horas en el periodo seleccionado</p>
+      </div>
+
+      <!-- Tabla pivot -->
+      <div class="table-container" *ngIf="reporteData.total_registros > 0">
+        <table class="pivot-table">
+          <thead>
+            <tr>
+              <th class="col-codigo sticky-col">Codigo</th>
+              <th class="col-nombre sticky-col-2">Nombre</th>
+              <th class="col-total">Total Horas</th>
+              <th class="col-total">Total Dias</th>
+              <th
+                *ngFor="let fecha of reporteData.fechas"
+                class="col-fecha"
+                [matTooltip]="formatFechaDisplay(fecha)"
+              >
+                {{ formatFechaCorta(fecha) }}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let fila of reporteData.filas">
+              <td class="col-codigo sticky-col">{{ fila.codigo }}</td>
+              <td class="col-nombre sticky-col-2" [matTooltip]="fila.nombre">{{ fila.nombre }}</td>
+              <td class="col-total total-cell">{{ fila.total_horas.toFixed(2) }}</td>
+              <td class="col-total">{{ fila.total_dias }}</td>
+              <td
+                *ngFor="let fecha of reporteData.fechas"
+                class="col-fecha"
+                [class.horas-altas]="isHorasAltas(fila, fecha)"
+                [class.sin-dato]="getHorasCelda(fila, fecha) === '-'"
+              >
+                {{ getHorasCelda(fila, fecha) }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
